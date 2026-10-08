@@ -458,6 +458,7 @@ async function callApi(o){
   const body={model:o.model||S.settings.model,max_tokens:o.max_tokens||4000,messages:o.messages};
   if(o.system)body.system=o.system;
   if(o.tools)body.tools=o.tools;
+  if(o.tool_choice)body.tool_choice=o.tool_choice;
   const streaming=typeof o.onText==='function';
   if(streaming)body.stream=true;
   try{
@@ -465,33 +466,41 @@ async function callApi(o){
     if(!res.ok){let msg='';try{const j=await res.json();msg=(j&&j.error&&j.error.message)||'';}catch(e){}throw new ApiError(res.status,msg);}
     if(streaming&&res.body&&res.body.getReader)return await readStream(res.body.getReader(),o.onText);
     const j=await res.json();
-    return {text:(j.content||[]).filter(function(b){return b&&b.type==='text';}).map(function(b){return b.text;}).join(''),usage:j.usage||{},stop:j.stop_reason,content:j.content||[]};
+    const tu=(j.content||[]).filter(function(b){return b&&b.type==='tool_use';})[0];
+    return {text:(j.content||[]).filter(function(b){return b&&b.type==='text';}).map(function(b){return b.text;}).join(''),tool:tu?tu.input:null,usage:j.usage||{},stop:j.stop_reason,content:j.content||[]};
   }finally{clearTimeout(timer);}
 }
 async function readStream(reader,onText){
-  const dec=new TextDecoder();let buf='',text='',stop=null;const usage={input_tokens:0,output_tokens:0};
+  const dec=new TextDecoder();let buf='',text='',tool='',stop=null,isTool=false;const usage={input_tokens:0,output_tokens:0};
   const handle=function(ev){
     const data=ev.split('\n').filter(function(l){return l.indexOf('data:')===0;}).map(function(l){return l.slice(5).trim();}).join('');
     if(!data||data==='[DONE]')return;
     let d;try{d=JSON.parse(data);}catch(e){return;}
     if(d.type==='message_start'&&d.message&&d.message.usage){const u=d.message.usage;usage.input_tokens=(u.input_tokens||0)+(u.cache_creation_input_tokens||0)+(u.cache_read_input_tokens||0);usage.output_tokens=u.output_tokens||0;}
+    else if(d.type==='content_block_start'&&d.content_block&&d.content_block.type==='tool_use'){isTool=true;}
+    else if(d.type==='content_block_delta'&&d.delta&&d.delta.type==='input_json_delta'){tool+=d.delta.partial_json||'';try{onText(tool);}catch(e){}}
     else if(d.type==='content_block_delta'&&d.delta&&d.delta.type==='text_delta'){text+=d.delta.text||'';try{onText(text);}catch(e){}}
     else if(d.type==='message_delta'){if(d.usage&&d.usage.output_tokens!=null)usage.output_tokens=d.usage.output_tokens;if(d.delta&&d.delta.stop_reason)stop=d.delta.stop_reason;}
     else if(d.type==='error')throw new ApiError(d.error&&d.error.type==='overloaded_error'?529:500,(d.error&&d.error.message)||'stream error');
   };
   for(;;){
     const r=await reader.read();if(r.done)break;
-    buf+=dec.decode(r.value,{stream:true}).replace(/\r\n/g,'\n');
+    buf=(buf+dec.decode(r.value,{stream:true})).replace(/\r\n/g,'\n');
+    if(buf.charAt(buf.length-1)==='\r')continue;
     let i;while((i=buf.indexOf('\n\n'))>=0){const ev=buf.slice(0,i);buf=buf.slice(i+2);handle(ev);}
   }
   if(buf.trim())handle(buf);
-  return {text:text,usage:usage,stop:stop};
+  return {text:text,tool:isTool?tool:null,usage:usage,stop:stop};
 }
 function extractJson(t){
-  let s=String(t).trim().replace(/^```(?:json)?\s*/i,'').replace(/```\s*$/,'');
+  if(t&&typeof t==='object')return t;
+  let s=String(t||'').trim().replace(/^```(?:json)?\s*/i,'').replace(/```\s*$/,'');
   const a=s.indexOf('{'),b=s.lastIndexOf('}');
   if(a<0||b<=a)throw new ParseError('no json');
-  try{return JSON.parse(s.slice(a,b+1));}catch(e){throw new ParseError('bad json');}
+  s=s.slice(a,b+1);
+  try{return JSON.parse(s);}catch(e){}
+  const fixed=s.replace(/[\u201c\u201d]/g,'"').replace(/,\s*([}\]])/g,'$1').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,' ');
+  try{return JSON.parse(fixed);}catch(e){throw new ParseError('bad json');}
 }
 function errText(e){
   if(e&&e.name==='ApiError'){
@@ -507,7 +516,12 @@ function errText(e){
     return '요청이 거절되었습니다'+m+(s?' [코드 '+s+']':'');
   }
   if(e&&e.name==='AbortError')return '응답 시간이 초과되었습니다. 다시 시도해 주세요.';
-  if(e&&e.name==='ParseError')return 'AI 응답을 해석하지 못했습니다. 다시 제작해 주세요.';
+  if(e&&e.name==='ParseError'){
+    if(e.message==='truncated')return '글이 길어 AI 응답이 중간에 끊겼습니다. 미디어 수를 줄이거나 직접 입력의 지표(본문 글자 수)를 낮춰 다시 시도하세요.';
+    if(e.message==='refusal')return 'AI가 이 요청에 대한 작성을 거절했습니다. 직접 입력이나 작성 기준에 문제가 될 표현이 없는지 확인하세요.';
+    if(e.message==='missing')return 'AI 응답에 제목이나 본문이 빠져 있었습니다. 다시 제작해 주세요.';
+    return 'AI 응답 형식이 올바르지 않았습니다. 다시 제작해 주세요.';
+  }
   if(e&&e.name==='RefError')return e.message;
   return '네트워크 문제로 요청을 보내지 못했습니다. 인터넷 연결을 확인하세요.';
 }
@@ -670,11 +684,20 @@ const SYS_WRITE=[
 '- 쓰지 않을 표현: 결론적으로, 이처럼, ~는 매우 중요합니다, ~에 대해 알아보겠습니다, 다양한, 효율적인, 많은 분들이. 이모지와 ** 표시는 쓰지 않습니다.',
 '- [참고 글 구조]가 있으면 흐름과 섹션 역할, 문단 수, 사진 배치만 따릅니다. 참고 글의 문장, 소제목 문구, 고유 정보는 가져오지 않습니다.',
 '',
-'[출력 JSON]',
-'{"title":"제목","intro":["도입 문단"],"intro_media":[미디어 번호],',
-' "sections":[{"heading":"소제목","paragraphs":["문단"],"media":[미디어 번호]}],',
-' "closing":"마무리 한 줄(문의 안내 가능)","hashtags":["#태그"],"captions":["1번 미디어 설명","2번 미디어 설명"]}'
+'[제출 방법]',
+'- 결과는 반드시 write_post 도구 한 번으로 제출합니다. 도구 밖에 글을 쓰지 않습니다.',
+'- title 제목 / intro 도입 문단 배열 / intro_media 도입부에 넣을 미디어 번호 / sections 소제목·문단·미디어 번호 / closing 마무리 한 줄(문의 안내 가능) / hashtags 해시태그 / captions 1번부터 순서대로 미디어 설명'
 ].join('\n');
+const POST_TOOL={name:'write_post',description:'완성한 블로그 글을 제출합니다.',input_schema:{type:'object',
+  properties:{
+    title:{type:'string'},
+    intro:{type:'array',items:{type:'string'}},
+    intro_media:{type:'array',items:{type:'integer'}},
+    sections:{type:'array',items:{type:'object',properties:{heading:{type:'string'},paragraphs:{type:'array',items:{type:'string'}},media:{type:'array',items:{type:'integer'}}},required:['heading','paragraphs','media']}},
+    closing:{type:'string'},
+    hashtags:{type:'array',items:{type:'string'}},
+    captions:{type:'array',items:{type:'string'}}
+  },required:['title','intro','intro_media','sections','closing','hashtags','captions']}};
 function buildContent(T){
   const type=TYPES.filter(function(t){return t.k===S.type;})[0]||TYPES[0];
   const kw=S.keywords,N=S.media.length;
@@ -702,12 +725,17 @@ function buildContent(T){
   return content;
 }
 function normalizePost(raw,N,kws){
+  if(raw&&typeof raw==='object'&&!raw.title&&!raw.sections){const inner=raw.post||raw.input||raw.result;if(inner&&typeof inner==='object')raw=inner;}
   if(!raw||typeof raw!=='object')throw new ParseError('shape');
   const list=function(x){return Array.isArray(x)?x.map(clean).filter(Boolean):(typeof x==='string'&&x.trim()?[clean(x)]:[]);};
   const p={title:clean(raw.title),intro:list(raw.intro),introMedia:raw.intro_media,
     sections:(Array.isArray(raw.sections)?raw.sections:[]).map(function(s){return {heading:clean(s&&s.heading),paragraphs:list(s&&s.paragraphs),media:s&&s.media};}).filter(function(s){return s.heading&&s.paragraphs.length;}),
     closing:clean(raw.closing),hashtags:list(raw.hashtags),captions:Array.isArray(raw.captions)?raw.captions.map(clean):[]};
-  if(!p.title||!p.intro.length||!p.sections.length)throw new ParseError('missing');
+  if(!p.sections.length)throw new ParseError('missing');
+  if(!p.intro.length)p.intro=[p.sections[0].paragraphs.shift()||''].filter(Boolean);
+  if(!p.sections[0].paragraphs.length)p.sections[0].paragraphs=[''];
+  if(!p.title)p.title=S.product.trim()+(S.keywords[0]&&S.product.indexOf(S.keywords[0])<0?' '+S.keywords[0]:'')+' 안내';
+  if(!p.intro.length)throw new ParseError('missing');
   assignMedia(p,N);
   p.captions=Array.from({length:N},function(_,i){return (p.captions[i]||'').slice(0,60);});
   p.hashtags=normTags(p.hashtags,kws);
@@ -767,7 +795,7 @@ function setEnergy(pct,txt,sub){
 let liveT=0;
 function onStream(text,T,N,t0){
   const now=Date.now();if(now-liveT<150)return;liveT=now;
-  const strs=(String(text).match(/"(?:[^"\\]|\\.){8,}"/g)||[]).map(function(s){try{return JSON.parse(s);}catch(e){return s.slice(1,-1);}});
+  const strs=(String(text).match(/"(?:[^"\\]|\\.){8,}"/g)||[]).map(function(s){try{return JSON.parse(s);}catch(e){return s.slice(1,-1);}}).filter(function(s){return !/^(intro_media|paragraphs|hashtags|captions|sections|closing|heading)$/.test(s);});
   const chars=strs.reduce(function(a,s){return a+s.length;},0);
   const goal=(T.body[0]+T.body[1])/2*1.12+N*18+60;
   const pct=Math.min(97,8+Math.round(chars/goal*89));
@@ -781,13 +809,24 @@ async function make(){
   const T=targets(),N=S.media.length,t0=Date.now(),usage={inp:0,out:0,calls:0};
   setEnergy(3,'준비 중...','미디어 '+N+'개 전송');$('#live').innerHTML='';
   const content=buildContent(T);
-  const maxTok=T.body[1]>2600||N>12?9000:6500;
+  const maxTok=T.body[1]>2600||N>12?14000:10000;
+  S.lastRaw='';
   try{
     let post=null,last=null;
     for(let a=0;a<2&&!post;a++){
-      const r=await callApi({system:SYS_WRITE,messages:[{role:'user',content:content}],max_tokens:maxTok,onText:function(t){onStream(t,T,N,t0);}});
+      const r=await callApi({system:SYS_WRITE,messages:[{role:'user',content:content}],tools:[POST_TOOL],tool_choice:{type:'tool',name:'write_post'},max_tokens:maxTok,onText:function(t){onStream(t,T,N,t0);}});
       usage.inp+=r.usage.input_tokens||0;usage.out+=r.usage.output_tokens||0;usage.calls++;
-      try{post=normalizePost(extractJson(r.text),N,S.keywords);}catch(e){if(!(e instanceof ParseError))throw e;last=e;if(a===0)setEnergy(10,'다시 시도 중 ⚡','응답 형식 오류');}
+      S.lastRaw=JSON.stringify({stop:r.stop,tool:typeof r.tool==='string'?r.tool.slice(0,3000):r.tool,text:str(r.text).slice(0,3000)});
+      try{
+        if(r.stop==='refusal')throw new ParseError('refusal');
+        const src=r.tool!=null&&r.tool!==''?r.tool:r.text;
+        try{post=normalizePost(extractJson(src),N,S.keywords);}
+        catch(e){if(r.stop==='max_tokens')throw new ParseError('truncated');throw e;}
+      }catch(e){
+        if(!(e instanceof ParseError))throw e;last=e;
+        if(e.message==='refusal')break;
+        if(a===0)setEnergy(10,'다시 시도 중 ⚡',e.message==='truncated'?'응답이 끊김':'응답 형식 오류');
+      }
     }
     if(!post)throw last||new ParseError('fail');
     const sec=Math.max(1,Math.round((Date.now()-t0)/1000));
@@ -798,7 +837,7 @@ async function make(){
     renderResult(true);saveResult();
     setTimeout(function(){$('#sec5').scrollIntoView({behavior:'smooth',block:'start'});},50);
   }catch(e){
-    S.fail='제작하지 못했습니다. '+errText(e);$('#energy').hidden=true;renderBanner();
+    S.fail='제작하지 못했습니다. '+errText(e);S.failRaw=e&&e.name==='ParseError'?S.lastRaw:'';$('#energy').hidden=true;renderBanner();
   }finally{S.busy=false;update();}
 }
 
@@ -987,7 +1026,7 @@ function update(){
   $('#apiBtn').classList.toggle('on',on);$('#apiTxt').textContent=on?'API 연결됨':'API 미연결';
   saveDraft();
 }
-function renderBanner(){$('#banner').innerHTML=S.fail?'<div class="banner">'+esc(S.fail)+'</div>':'';}
+function renderBanner(){$('#banner').innerHTML=S.fail?'<div class="banner">'+esc(S.fail)+(S.failRaw?' <button class="btn" type="button" id="rawCopy" style="padding:2px 10px;margin-left:6px">오류 내용 복사</button>':'')+'</div>':'';}
 let draftT=0;
 function saveDraft(){clearTimeout(draftT);draftT=setTimeout(function(){store.set('blogSimple.draft',{product:S.product,keywords:S.keywords,type:S.type,url:S.url,direct:S.direct,ad:S.ad,guide:S.guide});},300);}
 function syncInputs(){
@@ -1072,6 +1111,7 @@ function bind(){
   window.addEventListener('drop',function(e){e.preventDefault();});
   $('#grid').addEventListener('click',function(e){const b=e.target.closest('button[data-rm]');if(b)removeMedia(+b.getAttribute('data-rm'));});
   $('#make').addEventListener('click',make);
+  $('#banner').addEventListener('click',function(e){if(e.target.id==='rawCopy')writeClip({text:S.failRaw||''}).then(function(ok){toast(ok?'오류 내용을 복사했습니다. 대화창에 붙여 넣어 보내 주세요.':'복사하지 못했습니다.');});});
   $('#paper').addEventListener('input',function(){renderPills();saveResult();});
   $('#paper').addEventListener('paste',function(e){e.preventDefault();const t=(e.clipboardData||window.clipboardData).getData('text/plain');document.execCommand('insertText',false,t);});
   $('#pills').addEventListener('click',function(e){const b=e.target.closest('button[data-go]');if(b)goMark(b.getAttribute('data-go'));});
@@ -1111,7 +1151,7 @@ async function init(){
   }catch(e){}
   update();
 }
-window.BlogApp={S:S,addKeywords:addKeywords,parseStats:parseStats,targets:targets,buildContent:buildContent,normalizePost:normalizePost,assignMedia:assignMedia,paperHtml:paperHtml,make:make,checks:checks,inspect:inspect,resetAll:resetAll,copyParts:copyParts,fetchUrlOf:fetchUrlOf,analyzeUrl:analyzeUrl,scheduleRef:scheduleRef,sliceBody:sliceBody,overlap:overlap,readStream:readStream,renderMedia:renderMedia,update:update,errText:errText,SYS_WRITE:SYS_WRITE,goMark:goMark,saveResult:saveResult};
+window.BlogApp={S:S,extractJson:extractJson,POST_TOOL:POST_TOOL,addKeywords:addKeywords,parseStats:parseStats,targets:targets,buildContent:buildContent,normalizePost:normalizePost,assignMedia:assignMedia,paperHtml:paperHtml,make:make,checks:checks,inspect:inspect,resetAll:resetAll,copyParts:copyParts,fetchUrlOf:fetchUrlOf,analyzeUrl:analyzeUrl,scheduleRef:scheduleRef,sliceBody:sliceBody,overlap:overlap,readStream:readStream,renderMedia:renderMedia,update:update,errText:errText,SYS_WRITE:SYS_WRITE,goMark:goMark,saveResult:saveResult};
 init();
 })();
 </script>
