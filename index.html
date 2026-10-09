@@ -280,7 +280,7 @@ mark.ban{background:#ffd5d9;color:#a3111f;border-radius:3px;padding:0 2px}
       <div class="lb"><label for="setKey">Claude API 키</label></div>
       <div class="keyrow"><input class="in" type="password" id="setKey" autocomplete="off" spellcheck="false" placeholder="sk-ant-..."><button class="btn" type="button" id="setShow">보기</button></div>
       <label class="chk"><input type="checkbox" id="setSave"><span>이 브라우저에 저장 (내 PC·맥북에서만 켜세요)</span></label>
-      <p class="hint">키는 이 파일과 GitHub에 올라가지 않고, 입력한 브라우저에만 저장됩니다. 맥북과 데스크톱에서 각각 한 번씩 입력하면 됩니다. 키는 Claude Console에서 워크스페이스를 지정해 만드세요.</p>
+      <p class="hint">키는 이 파일과 GitHub에 올라가지 않고, 입력한 브라우저에만 저장됩니다. 맥북과 데스크톱에서 각각 한 번씩 입력하면 됩니다. 키는 Claude Console에서 워크스페이스를 지정해 만드세요. <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">키 발급 페이지 열기</a></p>
     </div>
     <div class="f">
       <div class="lb"><label for="setModel">글 작성 모델</label></div>
@@ -368,7 +368,7 @@ const S={
 
 /* ================= 키워드 ================= */
 function cleanKw(raw){
-  return String(raw).replace(/^#+/,'').replace(/\s+/g,' ').replace(/[^0-9A-Za-z가-힣ㄱ-ㅎㅏ-ㅣ \-+&.]/g,'').trim();
+  return String(raw).replace(/^#+/,'').replace(/\s+/g,' ').replace(/[^0-9A-Za-z가-힣ㄱ-ㅎㅏ-ㅣ \-+&.]/g,'').replace(/[.\-+&\s]+$/,'').trim();
 }
 function addKeywords(text){
   const msgs=[];
@@ -477,7 +477,22 @@ ApiError.prototype=Object.create(Error.prototype);
 function ParseError(m){this.name='ParseError';this.message=m||'';}
 ParseError.prototype=Object.create(Error.prototype);
 
+const NOFORCE_KEY='blogSimple.noForce';
+/* 일부 모델은 tool_choice 강제(type:"tool")를 받지 않음 → 자동(auto)으로 바꿔 다시 요청하고 모델별로 기억 */
 async function callApi(o){
+  const model=o.model||S.settings.model,forced=!!(o.tool_choice&&o.tool_choice.type==='tool');
+  const nf=store.get(NOFORCE_KEY,{})||{};
+  if(forced&&nf[model])return callApiRaw(Object.assign({},o,{tool_choice:{type:'auto'}}));
+  try{return await callApiRaw(o);}
+  catch(e){
+    if(forced&&e&&e.name==='ApiError'&&e.status===400&&/tool_choice/i.test(e.message||'')){
+      nf[model]=1;store.set(NOFORCE_KEY,nf);
+      return callApiRaw(Object.assign({},o,{tool_choice:{type:'auto'}}));
+    }
+    throw e;
+  }
+}
+async function callApiRaw(o){
   const ctl=new AbortController(),timer=setTimeout(function(){ctl.abort();},o.timeout||240000);
   if(o.signal){if(o.signal.aborted)ctl.abort();else o.signal.addEventListener('abort',function(){ctl.abort();});}
   const headers={'content-type':'application/json','x-api-key':S.apiKey.trim(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};
@@ -1295,14 +1310,14 @@ function openSet(){
 }
 function applySet(){
   const before=S.apiKey;
-  S.apiKey=$('#setKey').value.trim();S.settings.saveKey=$('#setSave').checked;S.settings.model=$('#setModel').value;S.settings.fast=$('#setFast').checked;
+  const nk=$('#setKey').value.trim();if(nk!==S.apiKey)store.del(NOFORCE_KEY);S.apiKey=nk;S.settings.saveKey=$('#setSave').checked;S.settings.model=$('#setModel').value;S.settings.fast=$('#setFast').checked;
   persistSettings();update();
 }
 async function testKey(){
   applySet();const st=$('#setStat');
   if(S.apiKey.length<20){st.className='stat bad';st.textContent='API 키를 먼저 입력하세요.';return;}
   st.className='stat';st.textContent='연결 확인 중...';
-  try{await callApi({messages:[{role:'user',content:'"확인"이라고만 답하세요.'}],max_tokens:16,timeout:30000});st.className='stat ok';st.textContent='연결되었습니다. 바로 사용할 수 있습니다.';}
+  try{await callApi({messages:[{role:'user',content:'"확인"이라고만 답하세요.'}],max_tokens:16,timeout:30000});st.className='stat ok';st.textContent='연결되었습니다 ('+MODELS[S.settings.model].label.replace(/ \(.*\)/,'')+'). 바로 사용할 수 있습니다.';}
   catch(e){st.className='stat bad';st.textContent=errText(e);}
 }
 
