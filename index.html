@@ -54,6 +54,14 @@ button{cursor:pointer}
 .status.err{background:var(--badbg);color:#9b1c28}
 .status.wait{background:var(--amberbg);color:var(--amber)}
 .status ol{margin:6px 0 0;padding-left:18px;color:var(--ink2)}
+.linkbtn{border:0;background:none;padding:0;color:var(--blue);font-size:12.5px;text-decoration:underline}
+.refbar{display:flex;gap:8px;margin-bottom:8px}.refbar .sel{flex:1;padding:8px 10px;font-size:13.5px}
+.pastebox{min-height:84px;max-height:30vh;overflow:auto;border:2px dashed #c9a227;border-radius:10px;padding:12px;font-size:13px;background:#fffdf5;outline:0}
+.pastebox:focus{border-color:var(--navy2);background:#fff}
+.pastebox:empty:before{content:attr(data-ph);color:var(--ink3);white-space:pre-line}
+.status .btn{padding:2px 10px;margin-left:4px;font-size:12.5px}
+.skel{margin:6px 0 0;padding-left:18px;color:var(--ink2)}
+.status a{color:var(--blue);font-weight:600}
 .spin{width:15px;height:15px;border:2px solid #bccad8;border-top-color:var(--navy);border-radius:50%;animation:sp .8s linear infinite;flex:none}
 @keyframes sp{to{transform:rotate(360deg)}}
 
@@ -80,13 +88,29 @@ button{cursor:pointer}
 .make.ready:hover{background:var(--green2)}
 .make:disabled{cursor:not-allowed}
 .make.ready:disabled{background:#6f7d8a}
-.energy{margin-top:14px}
-.energy .bar{height:16px;border-radius:999px;background:#e3e9ef;overflow:hidden}
-.energy .bar i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#12a150,#3ddc84,#ffd54a);transition:width .25s}
-.energy .lab{display:flex;justify-content:space-between;font-size:13.5px;font-weight:700;margin-top:7px}
-.energy .lab span:last-child{color:var(--ink3);font-weight:500}
-.live{margin-top:10px;font-size:13px;color:var(--ink2);max-height:120px;overflow:hidden;border-left:3px solid #cfe9d9;padding-left:10px}
-.live p{margin:0 0 4px}
+.energy{margin-top:16px;border-radius:14px;background:#0f1d2c;color:#fff;padding:16px 18px}
+.eh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:9px}
+.eh b{font-size:17px;font-weight:800;letter-spacing:-.01em}
+.eh span{font-size:12.5px;color:#9fb3c8;white-space:nowrap}
+.energy .bar{position:relative;height:20px;border-radius:999px;background:#22364b;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.energy .bar i{position:relative;display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#0fae57,#3ddc84 60%,#ffe066);box-shadow:0 0 14px rgba(61,220,132,.55);transition:width .35s ease;overflow:hidden}
+.energy .bar i:after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 0,rgba(255,255,255,.45) 45%,transparent 70%);transform:translateX(-100%);animation:shine 1.3s linear infinite}
+.energy.done .bar i:after{animation:none}
+@keyframes shine{to{transform:translateX(100%)}}
+.steps{display:flex;gap:6px;margin:12px 0 10px;font-size:12px;flex-wrap:wrap}
+.steps span{border-radius:999px;padding:3px 10px;background:#1c3047;color:#8ea4ba}
+.steps span.run{background:#ffe066;color:#3a2c00;font-weight:700}
+.steps span.done{background:#1f6f45;color:#d6ffe6}
+.cells{display:flex;gap:7px;flex-wrap:wrap}
+.cell{position:relative;width:54px;height:62px;border-radius:9px;border:2px solid #36506b;background:#16283a;overflow:hidden;display:flex;align-items:flex-end;justify-content:center}
+.cell:before{content:"";position:absolute;top:-6px;left:50%;width:16px;height:6px;margin-left:-8px;border-radius:3px 3px 0 0;background:#36506b}
+.cell i{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(0deg,#0fae57,#3ddc84);transition:height .3s ease}
+.cell.run{border-color:#ffe066}.cell.run i{background:linear-gradient(0deg,#e0a800,#ffe066)}
+.cell.done{border-color:#3ddc84}
+.cell span{position:relative;z-index:1;font-size:11px;font-weight:700;padding:0 0 5px;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.cell em{position:absolute;top:4px;left:0;right:0;z-index:1;text-align:center;font-style:normal;font-size:12px}
+.live{margin-top:12px;font-size:13px;color:#cfe0ee;max-height:110px;overflow:hidden;border-left:3px solid #3ddc84;padding-left:10px;line-height:1.6}
+.live p{margin:0 0 4px}.live small{color:#ffe066;font-weight:700;margin-right:6px}
 
 .res-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
 .res-head h2{margin:0;font-size:16px}
@@ -143,6 +167,7 @@ mark.ban{background:#ffd5d9;color:#a3111f;border-radius:3px;padding:0 2px}
   .gnb{padding:0 12px}.logo small{display:none}
   .card{padding:18px 16px}
   .row{grid-template-columns:1fr}
+  .cell{width:46px;height:56px}
   .paper{padding:24px 18px}
   .p-title{font-size:21px}
 }
@@ -176,16 +201,17 @@ mark.ban{background:#ffd5d9;color:#a3111f;border-radius:3px;padding:0 2px}
   </section>
 
   <section class="card" id="sec2">
-    <h2><b>2</b>소스 · 가이드라인</h2>
+    <h2><b>2</b>재료 · 가이드라인</h2>
     <div class="f">
-      <div class="lb"><label for="url">참고 글 URL</label><small>넣으면 자동 분석 (선택)</small></div>
-      <input class="in" id="url" type="url" autocomplete="off" placeholder="https://blog.naver.com/아이디/글번호">
-      <div id="refStatus"></div>
+      <div class="lb"><label for="direct">직접 입력</label><small><button type="button" class="linkbtn" id="formBtn">양식 넣기</button></small></div>
+      <textarea class="ta" id="direct" maxlength="8000" rows="6" placeholder="실제 정보를 적어 주세요. 정리되지 않은 메모도 괜찮습니다.&#10;상품 조건: 3중직 폴리에스터, 주문 후 7일 제작, 방문 실측 가능&#10;고객이 자주 묻는 질문: 커튼박스가 없으면 어디에 다나요?&#10;실제 사례: 거실 창 3m, 아이 방 빛 차단 요청&#10;(선택) 지표: 본문 2,000자 · 소제목 5"></textarea>
+      <p class="hint">여기에 없는 가격·수치·후기는 AI가 지어내지 않고 [확인 필요]로 비워 둡니다. 고객 이름·연락처는 적지 마세요.</p>
     </div>
     <div class="f">
-      <div class="lb"><label for="direct">직접 입력</label><small>상품 조건·고객 질문·사례·지표</small></div>
-      <textarea class="ta" id="direct" maxlength="8000" placeholder="실제 정보를 적어 주세요. 정리되지 않은 메모도 괜찮습니다.&#10;예) 3중직 폴리에스터, 주문 후 7일 제작, 방문 실측 가능 / 자주 묻는 질문: 커튼박스 없을 때 설치 위치&#10;지표를 적으면 분량에 반영됩니다: 본문 2,000자 · 소제목 5"></textarea>
-      <p class="hint">여기에 없는 가격·수치·후기는 AI가 지어내지 않고 [확인 필요]로 비워 둡니다. 고객 이름·연락처는 적지 마세요.</p>
+      <div class="lb"><span>참고 글</span><small>선택 · 구조만 따르고 문장은 가져오지 않습니다</small></div>
+      <div class="refbar" id="tplBar" hidden><select class="sel" id="tplSel" aria-label="저장한 구조"></select><button class="btn" type="button" id="tplDel" hidden>삭제</button></div>
+      <div class="pastebox" id="pasteBox" contenteditable="true" role="textbox" aria-label="참고 글 붙여넣기" data-ph="잘 쓴 블로그 글을 제목부터 끝까지 드래그해 복사(Ctrl+C / ⌘C)한 뒤&#10;여기를 누르고 붙여넣기(Ctrl+V / ⌘V) 하세요."></div>
+      <div id="refStatus"></div>
     </div>
     <div class="f">
       <div class="lb"><span>광고 구분</span><small id="adHint">본문 맨 앞에 광고 표기가 들어갑니다</small></div>
@@ -215,9 +241,11 @@ mark.ban{background:#ffd5d9;color:#a3111f;border-radius:3px;padding:0 2px}
     <h2><b>4</b>확인 · 제작</h2>
     <ul class="checks" id="checks"></ul>
     <button class="make" id="make" type="button" disabled>입력을 완료해 주세요</button>
-    <div class="energy" id="energy" hidden>
+    <div class="energy" id="energy" hidden aria-live="polite">
+      <div class="eh"><b id="eTxt">준비 중...</b><span id="eSub"></span></div>
       <div class="bar"><i id="eBar"></i></div>
-      <div class="lab"><span id="eTxt">준비 중...</span><span id="eSub"></span></div>
+      <div class="steps" id="eSteps"></div>
+      <div class="cells" id="eCells"></div>
       <div class="live" id="live"></div>
     </div>
   </section>
@@ -257,6 +285,7 @@ mark.ban{background:#ffd5d9;color:#a3111f;border-radius:3px;padding:0 2px}
     <div class="f">
       <div class="lb"><label for="setModel">글 작성 모델</label></div>
       <select class="sel" id="setModel"></select>
+      <label class="chk"><input type="checkbox" id="setFast" checked><span>빠른 제작 — 구성을 먼저 짠 뒤 도입·섹션을 동시에 작성 (약 2~3배 빠름, 비용 비슷)</span></label>
     </div>
     <div class="stat" id="setStat" aria-live="polite"></div>
     <div class="btns">
@@ -278,7 +307,6 @@ const MODELS={
   'claude-haiku-4-5-20251001':{label:'Haiku 4.5 (빠름·저렴)',in:1,out:5},
   'claude-opus-5-5':{label:'Opus 5.5 (고품질·느림)',in:4,out:20}
 };
-const FETCH_MODEL='claude-haiku-4-5-20251001';
 const MAX_MEDIA=20;
 const TYPES=[
   {k:'info',label:'정보성',guide:'독자가 궁금해하는 내용을 기준과 방법 중심으로 설명하고, 마지막에 이 상품과 연결한다.'},
@@ -331,10 +359,10 @@ function toast(msg,ms){const t=$('#toast');t.textContent=msg;t.hidden=false;clea
 
 /* ================= 상태 ================= */
 const S={
-  product:'',keywords:[],type:'info',url:'',direct:'',ad:'ad',guide:'',
+  product:'',keywords:[],type:'info',direct:'',ad:'ad',guide:'',
   media:[],mediaBusy:0,
-  ref:null,refState:'idle',refMsg:'',refFor:'',
-  apiKey:'',settings:{model:'claude-sonnet-5-5',saveKey:true},
+  ref:null,tplId:'',
+  apiKey:'',settings:{model:'claude-sonnet-5-5',saveKey:true,fast:true},
   busy:false,result:null,fail:''
 };
 
@@ -448,11 +476,10 @@ function ApiError(status,msg){this.name='ApiError';this.status=status;this.messa
 ApiError.prototype=Object.create(Error.prototype);
 function ParseError(m){this.name='ParseError';this.message=m||'';}
 ParseError.prototype=Object.create(Error.prototype);
-function RefError(m){this.name='RefError';this.message=m||'';}
-RefError.prototype=Object.create(Error.prototype);
 
 async function callApi(o){
   const ctl=new AbortController(),timer=setTimeout(function(){ctl.abort();},o.timeout||240000);
+  if(o.signal){if(o.signal.aborted)ctl.abort();else o.signal.addEventListener('abort',function(){ctl.abort();});}
   const headers={'content-type':'application/json','x-api-key':S.apiKey.trim(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};
   if(o.beta)headers['anthropic-beta']=o.beta;
   const body={model:o.model||S.settings.model,max_tokens:o.max_tokens||4000,messages:o.messages};
@@ -522,135 +549,155 @@ function errText(e){
     if(e.message==='missing')return 'AI 응답에 제목이나 본문이 빠져 있었습니다. 다시 제작해 주세요.';
     return 'AI 응답 형식이 올바르지 않았습니다. 다시 제작해 주세요.';
   }
-  if(e&&e.name==='RefError')return e.message;
   return '네트워크 문제로 요청을 보내지 못했습니다. 인터넷 연결을 확인하세요.';
 }
 
-/* ================= 참고 글 URL 분석 ================= */
-function isUrl(s){return /^https?:\/\/[^\s]+\.[^\s]+/i.test(String(s||'').trim());}
-function naverKey(u){
-  let a=/blogId=([A-Za-z0-9_-]+)/i.exec(u),b=/logNo=(\d+)/i.exec(u);
-  if(a&&b)return [a[1],b[1]];
-  a=/blog\.naver\.com\/([A-Za-z0-9_-]+)\/(\d+)/i.exec(u);
-  return a?[a[1],a[2]]:null;
+/* ================= 참고 글 (붙여넣기 → 구조 텍스트) ================= */
+const BLOCK={P:1,DIV:1,H1:1,H2:1,H3:1,H4:1,H5:1,H6:1,LI:1,UL:1,OL:1,TABLE:1,BLOCKQUOTE:1,FIGURE:1,SECTION:1,ARTICLE:1,HEADER:1,FOOTER:1,TR:1,TD:1,PRE:1};
+function goodImg(img){
+  const cls=(img.getAttribute('class')||'')+' '+((img.parentElement&&img.parentElement.getAttribute('class'))||'');
+  if(/sticker|emoji|icon|emoticon|profile|btn|logo|thumb_profile|ico_/i.test(cls))return false;
+  const src=img.getAttribute('src')||img.getAttribute('data-src')||img.getAttribute('data-lazy-src')||'';
+  if(!src||/\.gif(\?|$)/i.test(src)&&/sticker|emoti/i.test(src))return false;
+  const w=parseInt(img.getAttribute('width')||'0',10),h=parseInt(img.getAttribute('height')||'0',10);
+  return !((w&&w<80)||(h&&h<80));
 }
-function fetchUrlOf(u){const k=naverKey(u);return k?'https://m.blog.naver.com/PostView.naver?blogId='+k[0]+'&logNo='+k[1]:u;}
-function hostsOf(urls){const o=[];urls.forEach(function(u){try{const h=new URL(u).hostname.toLowerCase();[h,h.replace(/^(www|m)\./,'')].forEach(function(x){if(o.indexOf(x)<0)o.push(x);});}catch(e){}});return o;}
-function sliceBody(text,start,end){
-  const t=normWs(text),a=start?t.indexOf(normWs(start)):-1;let b=end?t.lastIndexOf(normWs(end)):-1;
-  if(a>=0&&b>=a)return t.slice(a,b+normWs(end).length);
-  return a>=0?t.slice(a):t;
+function isHeading(el,t){
+  if(/^H[1-6]$/.test(el.tagName))return t.length<=80;
+  const cls=(el.getAttribute&&el.getAttribute('class'))||'';
+  const inner=el.querySelector?el.querySelector('[class*="se-fs-fs"],[style*="font-size"]'):null;
+  const fc=cls+' '+(inner?inner.getAttribute('class')||'':'');
+  if(/sectionTitle|se-quotation|se-fs-fs(19|2\d|3\d)/i.test(fc))return t.length<=60;
+  if(t.length<4||t.length>45||/[.。!?…~]$/.test(t)||/(니다|해요|어요|아요|죠|네요|세요|다)$/.test(t))return false;
+  const b=el.querySelector&&el.querySelector('b,strong');
+  if(b&&normWs(b.textContent).length>=t.length*0.8)return true;
+  const st=((el.getAttribute&&el.getAttribute('style'))||'')+' '+(inner?inner.getAttribute('style')||'':'');
+  const fs=/font-size:\s*(\d+)/.exec(st);
+  return !!(fs&&parseInt(fs[1],10)>=19);
 }
-const SYS_REF=[
-'당신은 네이버 블로그 글의 구조 분석가입니다. web_fetch 도구로 주어진 주소의 글을 한 번 가져와 구조만 분석하고, JSON 객체 하나만 출력하세요. 설명이나 코드블록 표시는 쓰지 않습니다.',
-'- 본문 문장을 옮겨 적지 않습니다. 인용은 body_start, body_end(각 20자 이내)와 제목, 소제목만 허용합니다.',
-'- 글을 가져오지 못했거나 블로그 글이 아니면 {"ok":false,"reason":"이유"}만 출력합니다.',
-'- 메뉴, 댓글, 공감, 다른 글 목록 같은 본문 밖 내용은 뺍니다. 이미지는 본문 안의 이미지 흔적으로 셉니다.',
-'{"ok":true,"title":"글 제목","body_start":"본문 첫 문장 앞 20자 그대로","body_end":"본문 마지막 문장 끝 20자 그대로",',
-' "est":{"body_chars":본문 글자 수,"images":이미지 수,"videos":영상 수},',
-' "intro":{"paragraphs":문단 수,"images":이미지 수,"style":"도입 방식(30자 이내)"},',
-' "sections":[{"heading":"소제목","role":"섹션 역할(20자 이내)","paragraphs":문단 수,"images":이미지 수}],',
-' "closing":"마무리 방식(30자 이내)","tone":"문체 특징(40자 이내)","hooks":["구성 장치, 최대 4개, 각 25자 이내"]}'
-].join('\n');
-async function fetchCall(model,user,urls){
-  const tool={type:'web_fetch_20250910',name:'web_fetch',max_uses:2,max_content_tokens:25000,allowed_domains:hostsOf(urls)};
-  let messages=[{role:'user',content:user}],blocks=[],usage={inp:0,out:0},beta=false;
-  for(let round=0;round<3;round++){
-    let r;
-    try{r=await callApi({model:model,system:SYS_REF,messages:messages,tools:[tool],max_tokens:2000,beta:beta?'web-fetch-2025-09-10':'',timeout:120000});}
-    catch(e){if(!beta&&e&&e.name==='ApiError'&&e.status===400&&/web_fetch|beta|tool/i.test(e.message||'')){beta=true;round--;continue;}throw e;}
-    usage.inp+=r.usage.input_tokens||0;usage.out+=r.usage.output_tokens||0;
-    blocks=blocks.concat(r.content||[]);
-    if(r.stop==='pause_turn'){messages=[messages[0],{role:'assistant',content:r.content}];continue;}
-    break;
-  }
-  let doc='',ferr='';
-  blocks.forEach(function(b){
-    if(!b||b.type!=='web_fetch_tool_result')return;
-    const c=b.content||{};
-    if(c.type==='web_fetch_tool_error'){ferr=ferr||str(c.error_code||'error');return;}
-    const src=((c.content||{}).source)||{};
-    if(src.type==='text'&&typeof src.data==='string'&&src.data.length>doc.length)doc=src.data;
+function parseRefHtml(html){
+  const doc=new DOMParser().parseFromString(String(html||''),'text/html');
+  $$('script,style,noscript,template,link,meta',doc).forEach(function(n){n.remove();});
+  const root=doc.querySelector('.se-main-container,#postViewArea,.post_ct,.se_component_wrap')||doc.body;
+  let title='';
+  const tEl=doc.querySelector('.se-title-text,.pcol1,.se_title,.tit_h3');
+  if(tEl){title=normWs(tEl.textContent);if(root.contains(tEl))tEl.remove();}
+  const seq=[];
+  const hasBlockChild=function(el){for(let i=0;i<el.children.length;i++)if(BLOCK[el.children[i].tagName])return true;return false;};
+  (function walk(el){
+    for(let i=0;i<el.children.length;i++){
+      const c=el.children[i],tag=c.tagName,cls=c.getAttribute('class')||'';
+      if(/se-comment|comment|area_sympathy|post_footer|btn_area|se-oglink|og_link/i.test(cls))continue;
+      if(tag==='IMG'){if(goodImg(c))seq.push({t:'img'});continue;}
+      if(tag==='VIDEO'||tag==='IFRAME'||/se-video|se-oembed|_video/i.test(cls)){seq.push({t:'vid'});continue;}
+      if(BLOCK[tag]&&!hasBlockChild(c)){
+        $$('img',c).forEach(function(im){if(goodImg(im))seq.push({t:'img'});});
+        const t=normWs(c.textContent);
+        if(t)seq.push({t:isHeading(c,t)?'h':'p',text:t});
+        continue;
+      }
+      walk(c);
+    }
+  })(root);
+  if(!seq.some(function(x){return x.t==='p'||x.t==='h';}))return parseRefText(root.textContent);
+  return seqToRef(seq,title);
+}
+function parseRefText(text){
+  const lines=String(text||'').replace(/\r/g,'').split(/\n+/).map(normWs).filter(Boolean),seq=[];
+  lines.forEach(function(l,i){
+    if(/^\[?(사진|이미지|image)\s*\d*\]?$/i.test(l)){seq.push({t:'img'});return;}
+    if(/^\[?(영상|동영상|video)\s*\d*\]?$/i.test(l)){seq.push({t:'vid'});return;}
+    const next=lines[i+1]||'';
+    const h=l.length>=4&&l.length<=40&&!/[.。!?…~]$/.test(l)&&!/(니다|해요|어요|아요|죠|네요|세요|다)$/.test(l)&&next.length>l.length;
+    seq.push({t:h?'h':'p',text:l});
   });
-  return {text:blocks.filter(function(b){return b&&b.type==='text';}).map(function(b){return b.text;}).join(''),doc:doc,ferr:ferr,usage:usage};
+  return seqToRef(seq,'');
 }
-const FETCH_ERR={url_not_accessible:'페이지에 접근할 수 없습니다 (비공개 글이거나 사이트가 막았을 수 있습니다)',url_not_allowed:'허용되지 않은 주소입니다',too_many_requests:'요청이 많아 잠시 막혔습니다',unsupported_content_type:'지원하지 않는 페이지 형식입니다',url_too_long:'주소가 너무 깁니다',unavailable:'가져오기 기능을 잠시 쓸 수 없습니다',invalid_input:'주소 형식이 올바르지 않습니다'};
-function nn(v,max){const n=Math.round(Number(v));return (isFinite(n)&&n>=0)?Math.min(n,max):null;}
-async function analyzeUrl(url){
-  const target=fetchUrlOf(url);
-  const user='분석할 블로그 글 주소: '+target+'\n이 주소를 web_fetch로 가져와 분석하세요.';
-  let res;
-  try{res=await fetchCall(FETCH_MODEL,user,[target,url]);}
-  catch(e){
-    if(e&&e.name==='ApiError'&&(e.status===404||(e.status===400&&/model/i.test(e.message||'')))&&S.settings.model!==FETCH_MODEL)res=await fetchCall(S.settings.model,user,[target,url]);
-    else throw e;
+/* 구조 텍스트: 소제목은 그대로, 문단은 앞 30자 + 길이만, 사진·영상 위치 표시 */
+function seqToRef(seq,title){
+  if(!title){
+    const i=seq.findIndex(function(x){return x.t==='p'||x.t==='h';});
+    if(i>=0&&seq[i].text.length<=60&&seq.slice(i+1).some(function(x){return x.t==='p';})){title=seq[i].text;seq=seq.slice(0,i).concat(seq.slice(i+1));}
   }
-  let j=null;try{j=extractJson(res.text);}catch(e){}
-  if(res.ferr&&!res.doc)throw new RefError(FETCH_ERR[res.ferr]||('페이지를 가져오지 못했습니다 ('+res.ferr+')'));
-  if(!j||j.ok===false)throw new RefError('글을 분석하지 못했습니다'+(j&&j.reason?': '+clean(j.reason).slice(0,60):''));
-  const body=res.doc?sliceBody(res.doc,clean(j.body_start),clean(j.body_end)):'';
-  const est=j.est||{},intro=j.intro||{};
-  const secs=(Array.isArray(j.sections)?j.sections:[]).slice(0,12).map(function(s){return {heading:clean(s&&s.heading).slice(0,60),role:clean(s&&s.role).slice(0,30),paragraphs:nn(s&&s.paragraphs,40)||0,images:nn(s&&s.images,40)||0};});
-  const imgMarks=(body.match(/!\[|\[(?:사진|이미지)\]/g)||[]).length;
-  return {
-    url:url,title:clean(j.title).slice(0,80),
-    m:{title:clean(j.title).length||null,body:body.length>=300?body.length:nn(est.body_chars,20000),images:imgMarks||nn(est.images,60),video:nn(est.videos,10),sections:secs.length||null},
-    intro:{paragraphs:nn(intro.paragraphs,20)||0,images:nn(intro.images,20)||0,style:clean(intro.style).slice(0,50)},
-    sections:secs,closing:clean(j.closing).slice(0,50),tone:clean(j.tone).slice(0,60),
-    hooks:(Array.isArray(j.hooks)?j.hooks:[]).map(clean).filter(Boolean).slice(0,4),
-    text:body.slice(0,20000),usage:res.usage
-  };
+  const L=[];let img=0,vid=0,secs=0;
+  const flush=function(){if(img){L.push('[사진'+(img>1?' ×'+img:'')+']');img=0;}if(vid){L.push('[영상'+(vid>1?' ×'+vid:'')+']');vid=0;}};
+  seq.forEach(function(x){
+    if(x.t==='img'){if(vid)flush();img++;return;}
+    if(x.t==='vid'){if(img)flush();vid++;return;}
+    flush();
+    if(x.t==='h'){secs++;L.push('## '+x.text.slice(0,60));}
+    else L.push('문단 '+x.text.length+'자: '+x.text.slice(0,30)+(x.text.length>30?'…':''));
+  });
+  flush();
+  let skel=L.join('\n');if(skel.length>3500)skel=skel.slice(0,3500)+'\n…(이하 생략)';
+  const plain=seq.filter(function(x){return x.t==='p'||x.t==='h';}).map(function(x){return x.text;}).join(' ');
+  return {source:'paste',name:'',title:title.slice(0,80),
+    m:{title:title?title.length:null,body:plain.length,images:seq.filter(function(x){return x.t==='img';}).length,video:seq.filter(function(x){return x.t==='vid';}).length,sections:secs||null},
+    skel:skel,plain:plain.slice(0,20000)};
 }
-let refT=0,refSeq=0;
-function scheduleRef(){
-  clearTimeout(refT);
-  const u=S.url.trim();
-  if(!u){S.ref=null;S.refState='idle';S.refFor='';renderRef();update();idb.set('ref',null);return;}
-  if(!isUrl(u)){S.refState='bad';S.refMsg='주소 형식이 올바르지 않습니다. https://로 시작하는 주소를 넣어 주세요.';renderRef();update();return;}
-  if(S.ref&&S.refFor===u){S.refState='ok';renderRef();update();return;}
-  if(S.apiKey.trim().length<20){S.refState='needkey';renderRef();update();return;}
-  S.refState='load';renderRef();update();
-  refT=setTimeout(runRef,600);
+function applyPaste(html,text){
+  const ref=(html&&/<(p|div|img|h\d|span|br)/i.test(html))?parseRefHtml(html):parseRefText(text||'');
+  if(!ref||(ref.m.body||0)<150){toast('참고할 본문이 부족합니다. 글의 제목부터 끝까지 복사해 다시 붙여 넣어 주세요.',5000);return false;}
+  S.ref=ref;S.tplId='';
+  idb.set('ref',ref);renderRef();update();
+  toast('참고 글 구조를 반영했습니다.');
+  return true;
 }
-async function runRef(){
-  const u=S.url.trim(),seq=++refSeq;
-  S.refState='load';renderRef();update();
-  try{
-    const ref=await analyzeUrl(u);
-    if(seq!==refSeq)return;
-    S.ref=ref;S.refFor=u;S.refState='ok';addCost(ref.usage,FETCH_MODEL);
-    idb.set('ref',ref);
-  }catch(e){
-    if(seq!==refSeq)return;
-    S.ref=null;S.refFor='';S.refState='err';S.refMsg=errText(e);
-  }
-  renderRef();update();
+function clearRef(){S.ref=null;S.tplId='';idb.set('ref',null);renderRef();update();}
+/* 구조 템플릿 (이 브라우저에 저장) */
+const TPL_KEY='blogSimple.templates';
+function tpls(){const a=store.get(TPL_KEY,[]);return Array.isArray(a)?a.filter(function(t){return t&&t.id&&typeof t.skel==='string'&&t.m;}):[];}
+function saveTpl(name){
+  if(!S.ref)return false;
+  name=normWs(name).slice(0,30);if(!name)return false;
+  const list=tpls().filter(function(t){return t.name!==name;});
+  const t={id:uid(),name:name,skel:S.ref.skel,m:S.ref.m,title:S.ref.title,at:today()};
+  list.unshift(t);store.set(TPL_KEY,list.slice(0,30));
+  S.ref=Object.assign({},S.ref,{name:name});S.tplId=t.id;idb.set('ref',S.ref);
+  renderTpls();renderRef();toast('"'+name+'" 구조를 저장했습니다. 다음부터 위 목록에서 바로 고를 수 있습니다.',4500);
+  return true;
 }
-function renderRef(){
-  const box=$('#refStatus'),st=S.refState;
-  if(st==='idle'){box.innerHTML='';return;}
-  if(st==='load'){box.innerHTML='<div class="status load"><span class="spin"></span>참고 글을 가져와 분석하는 중입니다 (20~40초). 그동안 아래 항목을 계속 입력하세요.</div>';return;}
-  if(st==='needkey'){box.innerHTML='<div class="status wait">오른쪽 위 API 버튼에서 키를 연결하면 자동으로 분석합니다.</div>';return;}
-  if(st==='bad'){box.innerHTML='<div class="status err">'+esc(S.refMsg)+'</div>';return;}
-  if(st==='err'){box.innerHTML='<div class="status err">'+esc(S.refMsg)+'<br>직접 입력만으로도 제작할 수 있습니다. <button class="btn" type="button" id="refRetry" style="margin-left:6px;padding:3px 10px">다시 분석</button></div>';return;}
-  const r=S.ref,m=r.m||{},parts=[];
-  if(m.title)parts.push('제목 '+m.title+'자');
+function useTpl(id){
+  const t=tpls().filter(function(x){return x.id===id;})[0];
+  if(!t){clearRef();renderTpls();return;}
+  S.ref={source:'tpl',name:t.name,title:t.title||'',m:t.m,skel:t.skel,plain:''};S.tplId=id;
+  idb.set('ref',S.ref);renderTpls();renderRef();update();
+}
+function delTpl(id){
+  const t=tpls().filter(function(x){return x.id===id;})[0];if(!t)return;
+  if(!confirm('"'+t.name+'" 구조를 삭제할까요?'))return;
+  store.set(TPL_KEY,tpls().filter(function(x){return x.id!==id;}));
+  if(S.tplId===id)clearRef();
+  renderTpls();
+}
+function renderTpls(){
+  const list=tpls();
+  $('#tplBar').hidden=!list.length;
+  $('#tplSel').innerHTML='<option value="">저장한 구조 불러오기 ('+list.length+'개)</option>'+list.map(function(t){return '<option value="'+esc(t.id)+'">'+esc(t.name)+' · 본문 '+(t.m.body||0).toLocaleString('ko-KR')+'자 · 사진 '+(t.m.images||0)+'</option>';}).join('');
+  $('#tplSel').value=S.tplId&&list.some(function(t){return t.id===S.tplId;})?S.tplId:'';
+  $('#tplDel').hidden=!$('#tplSel').value;
+}
+function refSummary(r){
+  const m=r.m||{},parts=[];
   if(m.body)parts.push('본문 '+m.body.toLocaleString('ko-KR')+'자');
+  if(m.sections)parts.push('소제목 '+m.sections);
   if(m.images!=null)parts.push('사진 '+m.images);
   if(m.video)parts.push('영상 '+m.video);
-  if(m.sections)parts.push('소제목 '+m.sections);
-  box.innerHTML='<div class="status ok"><b>분석 완료</b>'+(r.title?' · '+esc(r.title):'')+'<br>'+esc(parts.join(' · '))+
-    '<ol>'+refLines(r).map(function(l){return '<li>'+esc(l)+'</li>';}).join('')+'</ol>'+
-    '<div style="margin-top:6px">이 글의 흐름·분량·사진 배치만 따르고, 문장과 소제목은 내 상품 정보로 새로 씁니다.</div></div>';
+  return parts.join(' · ');
 }
-function refLines(r){
-  const L=['도입: '+(r.intro.paragraphs||0)+'문단'+(r.intro.images?', 사진 '+r.intro.images+'장':'')+(r.intro.style?' — '+r.intro.style:'')];
-  r.sections.forEach(function(s,i){L.push('섹션 '+(i+1)+': '+(s.role||'본문')+' — 문단 '+s.paragraphs+(s.images?', 사진 '+s.images+'장':''));});
-  if(r.closing)L.push('마무리: '+r.closing);
-  return L;
+function renderRef(){
+  const box=$('#refStatus'),r=S.ref;
+  $('#pasteBox').hidden=!!r;$('#pasteBox').innerHTML='';
+  if(!r){box.innerHTML='';return;}
+  const heads=r.skel.split('\n').filter(function(l){return l.indexOf('## ')===0;}).slice(0,8).map(function(l){return l.slice(3);});
+  box.innerHTML='<div class="status ok"><b>'+(r.source==='tpl'?'저장한 구조 사용: '+esc(r.name):'참고 글 구조 반영'+(r.name?' ('+esc(r.name)+')':''))+'</b>'+(r.title?' · '+esc(r.title):'')+'<br>'+esc(refSummary(r))+
+    (heads.length?'<ol class="skel">'+heads.map(function(h){return '<li>'+esc(h)+'</li>';}).join('')+'</ol>':'')+
+    '<div style="margin-top:6px">흐름·분량·사진 배치만 따르고, 문장과 소제목은 내 상품 정보로 새로 씁니다.'+
+    (r.source!=='tpl'&&!r.name?' <button class="btn" type="button" id="refSave">이 구조 저장</button>':'')+
+    ' <button class="btn" type="button" id="refClear">지우기</button></div></div>';
 }
 
-/* ================= 제작 ================= */
+/* ================= 제작 공통 ================= */
 function targets(){
   const st=parseStats(S.direct),r=S.ref&&S.ref.m||{},N=S.media.length;
   const titleT=st.title||r.title,bodyT=st.body||r.body,secT=st.sections||r.sections;
@@ -662,31 +709,68 @@ function targets(){
   if(st.kw){const k=clamp(Math.round(st.kw),3,20);T.kw=[Math.max(3,k-1),k+1];}else T.kw=[4,7];
   return T;
 }
-const SYS_WRITE=[
-'당신은 기업 블로그(네이버) 담당자가 직접 쓴 것처럼 상품·서비스 글을 쓰는 전문 작가입니다. JSON 객체 하나만 출력하세요. 설명이나 코드블록 표시는 쓰지 않습니다.',
-'',
+const RULES=[
 '[사실 규칙]',
 '1. [재료]에 있는 내용만 사실로 씁니다. 재료에 없는 가격, 수치, 기간, 조건, 후기, 고객 사례, 수상·인증은 만들지 않고 [확인 필요: 확인할 내용]으로 표시합니다.',
 '2. 일반 개념은 설명할 수 있지만 "일반적으로", "상품에 따라" 같은 한정어를 씁니다.',
 '3. 최고, 1위, 1등, 100%, 무조건, 업계 유일, 가장 저렴, 최저가, 완벽, 절대 같은 표현은 쓰지 않습니다.',
 '4. 경쟁사 이름, 전화번호·이메일·실명·차량번호 같은 개인정보는 쓰지 않습니다.',
 '5. 필자는 상품을 판매·운영하는 회사 담당자입니다. 소비자가 쓴 후기처럼 위장하지 않고 "내돈내산", "광고 아님", "솔직 후기" 같은 말을 쓰지 않습니다. 광고 표기 문구는 프로그램이 넣으므로 본문에 쓰지 않습니다.',
-'6. 이 상품이 맞지 않는 경우나 주의할 점을 한 번 이상 씁니다. 홍보·문의 유도는 closing에서만 합니다.',
-'',
-'[미디어 규칙]',
-'7. 첨부된 미디어를 직접 보고, 각 미디어 번호를 내용이 맞는 위치(intro_media 또는 sections[].media)에 정확히 한 번씩 배치합니다. 한 곳에 몰지 말고 고르게 나눕니다.',
-'8. captions에는 미디어마다 보이는 것만 짧게(25자 이내) 씁니다. 보이지 않는 사실, 수치, 브랜드는 추측하지 않습니다. 영상은 첫 장면을 보고 "~하는 영상"처럼 씁니다.',
-'9. 본문에서 사진을 언급할 때도 보이는 것만 말합니다.',
+'6. 이 상품이 맞지 않는 경우나 주의할 점을 한 번 이상 씁니다. 홍보·문의 유도는 마무리에서만 합니다.',
 '',
 '[문체]',
-'- 담당자가 독자에게 설명하는 자연스러운 존댓말. 첫 문단은 독자의 구체적인 상황이나 질문으로 시작합니다.',
-'- 짧은 문장과 긴 문장을 섞고, 섹션 길이를 일부러 다르게 합니다. 문단은 2~4문장.',
+'- 담당자가 독자에게 설명하는 자연스러운 존댓말. 짧은 문장과 긴 문장을 섞습니다. 문단은 2~4문장.',
 '- 쓰지 않을 표현: 결론적으로, 이처럼, ~는 매우 중요합니다, ~에 대해 알아보겠습니다, 다양한, 효율적인, 많은 분들이. 이모지와 ** 표시는 쓰지 않습니다.',
-'- [참고 글 구조]가 있으면 흐름과 섹션 역할, 문단 수, 사진 배치만 따릅니다. 참고 글의 문장, 소제목 문구, 고유 정보는 가져오지 않습니다.',
-'',
-'[제출 방법]',
-'- 결과는 반드시 write_post 도구 한 번으로 제출합니다. 도구 밖에 글을 쓰지 않습니다.',
-'- title 제목 / intro 도입 문단 배열 / intro_media 도입부에 넣을 미디어 번호 / sections 소제목·문단·미디어 번호 / closing 마무리 한 줄(문의 안내 가능) / hashtags 해시태그 / captions 1번부터 순서대로 미디어 설명'
+'- [참고 글 구조]가 있으면 흐름, 섹션 역할, 문단 수, 사진 배치만 따릅니다. 참고 글의 문장, 소제목 문구, 고유 정보는 가져오지 않습니다.'
+].join('\n');
+const SYS_PLAN=['당신은 기업 블로그(네이버) 담당자가 직접 쓴 것처럼 상품·서비스 글을 기획하는 전문 편집자입니다. 첨부된 미디어를 직접 보고 글의 구성을 짠 뒤 plan_post 도구 한 번으로 제출합니다. 본문 문단은 다른 작가가 이 구성대로 나눠 쓰므로, 각 부분이 다룰 내용을 겹치지 않게 구체적으로 정합니다.','',RULES,'',
+'[구성 규칙]',
+'- title: 대표 키워드를 앞쪽에 둔 제목. closing: 마무리 한 문장(문의 안내 가능). hashtags: 5~10개.',
+'- intro_points, sections[].points: 그 부분에서 다룰 구체적 내용 2~4개(각 60자 이내, 재료에 근거). 섹션끼리 내용이 겹치지 않게 합니다.',
+'- 각 미디어 번호를 내용이 맞는 위치(intro_media 또는 sections[].media)에 정확히 한 번씩, 한 곳에 몰지 말고 고르게 배치합니다.',
+'- captions: 미디어마다 보이는 것만 25자 이내로. 보이지 않는 사실, 수치, 브랜드는 추측하지 않습니다. 영상은 첫 장면을 보고 "~하는 영상"처럼 씁니다.'
+].join('\n');
+const SYS_PART=['당신은 기업 블로그(네이버) 담당자가 직접 쓴 것처럼 글을 쓰는 전문 작가입니다. 정해진 구성 중 [이번에 쓸 부분]의 본문 문단만 씁니다.','',RULES,'',
+'[출력 형식]',
+'- 본문 문단만 출력합니다. 문단 사이에는 빈 줄 하나를 둡니다.',
+'- 제목, 소제목, 번호, 머리말, 설명, 마크다운 기호는 쓰지 않습니다.',
+'- 다른 부분에서 다룰 내용은 쓰지 않습니다. 사진을 언급할 때는 사진 설명에 보이는 것만 말합니다.'
+].join('\n');
+const PLAN_TOOL={name:'plan_post',description:'블로그 글의 구성을 제출합니다.',input_schema:{type:'object',
+  properties:{
+    title:{type:'string'},
+    intro_points:{type:'array',items:{type:'string'}},
+    intro_media:{type:'array',items:{type:'integer'}},
+    sections:{type:'array',items:{type:'object',properties:{heading:{type:'string'},points:{type:'array',items:{type:'string'}},media:{type:'array',items:{type:'integer'}}},required:['heading','points','media']}},
+    closing:{type:'string'},
+    hashtags:{type:'array',items:{type:'string'}},
+    captions:{type:'array',items:{type:'string'}}
+  },required:['title','intro_points','intro_media','sections','closing','hashtags','captions']}};
+function briefText(){
+  const type=TYPES.filter(function(t){return t.k===S.type;})[0]||TYPES[0];
+  const kw=S.keywords,L=[];
+  L.push('[상품·서비스] '+S.product.trim());
+  L.push('[키워드] 대표: '+kw[0]+(kw.length>1?' / 함께 쓸 키워드: '+kw.slice(1).join(', '):''));
+  L.push('[글 유형: '+type.label+'] '+type.guide);
+  L.push('[재료]\n'+(S.direct.trim()||'없음 — 일반적인 설명만 쓰고, 이 상품 고유의 조건·가격·수치·사례는 모두 [확인 필요: 내용]으로 표시하세요.'));
+  if(S.guide.trim())L.push('[작성 기준 — 톤앤매너·강조 포인트]\n'+S.guide.trim());
+  L.push('[광고 구분] '+(S.ad==='ad'?'광고성 (회사 홍보 글)':'정보성'));
+  return L.join('\n\n');
+}
+function refBlock(){return S.ref?'[참고 글 구조 — 흐름·분량·사진 배치만 참고, 문장과 소제목은 새로 씀. "문단 N자: 앞부분…"은 문단 길이와 역할만 보라는 뜻]\n'+S.ref.skel:'';}
+function mediaBlocks(N){
+  const out=[];
+  S.media.forEach(function(m,i){
+    out.push({type:'text',text:'미디어 '+(i+1)+(m.kind==='video'?' (영상'+(m.dur?', '+m.dur+'초':'')+' — 첫 장면)':' (사진)')+(m.ai?'':' — 장면을 볼 수 없음, 파일명: '+m.name)});
+    if(m.ai)out.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:m.ai}});
+  });
+  return out;
+}
+/* 단일 호출 방식(대체 경로)용 */
+const SYS_WRITE=['당신은 기업 블로그(네이버) 담당자가 직접 쓴 것처럼 상품·서비스 글을 쓰는 전문 작가입니다. 결과는 반드시 write_post 도구 한 번으로 제출합니다.','',RULES,'',
+'[미디어 규칙]',
+'- 첨부된 미디어를 직접 보고, 각 미디어 번호를 내용이 맞는 위치(intro_media 또는 sections[].media)에 정확히 한 번씩 고르게 배치합니다.',
+'- captions에는 미디어마다 보이는 것만 25자 이내로 씁니다. 첫 문단은 독자의 구체적인 상황이나 질문으로 시작합니다.'
 ].join('\n');
 const POST_TOOL={name:'write_post',description:'완성한 블로그 글을 제출합니다.',input_schema:{type:'object',
   properties:{
@@ -699,31 +783,81 @@ const POST_TOOL={name:'write_post',description:'완성한 블로그 글을 제�
     captions:{type:'array',items:{type:'string'}}
   },required:['title','intro','intro_media','sections','closing','hashtags','captions']}};
 function buildContent(T){
-  const type=TYPES.filter(function(t){return t.k===S.type;})[0]||TYPES[0];
-  const kw=S.keywords,N=S.media.length;
-  const L=[];
-  L.push('[상품·서비스] '+S.product.trim());
-  L.push('[키워드] 대표: '+kw[0]+(kw.length>1?' / 함께 쓸 키워드: '+kw.slice(1).join(', '):'')+'\n대표 키워드는 제목 앞쪽에 두고, 제목·소제목·본문을 합쳐 '+T.kw[0]+'~'+T.kw[1]+'회 자연스럽게 씁니다.');
-  L.push('[글 유형: '+type.label+'] '+type.guide);
-  L.push('[재료]\n'+(S.direct.trim()||'없음 — 일반적인 설명만 쓰고, 이 상품 고유의 조건·가격·수치·사례는 모두 [확인 필요: 내용]으로 표시하세요.'));
-  if(S.guide.trim())L.push('[작성 기준 — 톤앤매너·강조 포인트]\n'+S.guide.trim());
-  L.push('[광고 구분] '+(S.ad==='ad'?'광고성 (회사 홍보 글)':'정보성'));
-  L.push('[분량] 제목 '+T.title[0]+'~'+T.title[1]+'자 / intro와 sections 문단 합계 공백 포함 '+T.body[0].toLocaleString('ko-KR')+'~'+T.body[1].toLocaleString('ko-KR')+'자 / sections 정확히 '+T.S+'개 / hashtags 5~10개');
-  if(S.ref){
-    const R=['[참고 글 구조 — 흐름·분량·사진 배치만 참고, 문장과 소제목은 새로 씀]'];
-    refLines(S.ref).forEach(function(l){R.push('- '+l);});
-    if(S.ref.tone)R.push('- 문체: '+S.ref.tone);
-    if(S.ref.hooks.length)R.push('- 구성 장치: '+S.ref.hooks.join(' / '));
-    L.push(R.join('\n'));
-  }
+  const N=S.media.length,L=[briefText()];
+  L.push('[분량] 제목 '+T.title[0]+'~'+T.title[1]+'자 / intro와 sections 문단 합계 공백 포함 '+T.body[0].toLocaleString('ko-KR')+'~'+T.body[1].toLocaleString('ko-KR')+'자 / sections 정확히 '+T.S+'개 / hashtags 5~10개 / 대표 키워드는 제목 앞쪽과 본문에 합계 '+T.kw[0]+'~'+T.kw[1]+'회');
+  if(S.ref)L.push(refBlock());
   L.push('[미디어 '+N+'개] 아래에 1번부터 '+N+'번까지 순서대로 첨부했습니다. 모든 번호를 정확히 한 번씩 배치하고 captions는 '+N+'개를 씁니다.');
-  const content=[{type:'text',text:L.join('\n\n')}];
-  S.media.forEach(function(m,i){
-    content.push({type:'text',text:'미디어 '+(i+1)+(m.kind==='video'?' (영상'+(m.dur?', '+m.dur+'초':'')+' — 첫 장면)':' (사진)')+(m.ai?'':' — 장면을 볼 수 없음, 파일명: '+m.name)});
-    if(m.ai)content.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:m.ai}});
-  });
-  return content;
+  return [{type:'text',text:L.join('\n\n')}].concat(mediaBlocks(N));
 }
+function buildPlanContent(T){
+  const N=S.media.length,L=[briefText()];
+  L.push('[구성 조건] 제목 '+T.title[0]+'~'+T.title[1]+'자 / sections 정확히 '+T.S+'개 / 본문 전체 약 '+Math.round((T.body[0]+T.body[1])/2).toLocaleString('ko-KR')+'자 분량에 맞는 내용');
+  if(S.ref)L.push(refBlock());
+  L.push('[미디어 '+N+'개] 아래에 1번부터 '+N+'번까지 순서대로 첨부했습니다. 모든 번호를 정확히 한 번씩 배치하고 captions는 '+N+'개를 씁니다.');
+  return [{type:'text',text:L.join('\n\n')}].concat(mediaBlocks(N));
+}
+function normalizePlan(raw,N){
+  if(raw&&typeof raw==='object'&&!raw.title&&!raw.sections){const inner=raw.plan||raw.input||raw.result;if(inner&&typeof inner==='object')raw=inner;}
+  if(!raw||typeof raw!=='object')throw new ParseError('shape');
+  const list=function(x){return Array.isArray(x)?x.map(clean).filter(Boolean):(typeof x==='string'&&x.trim()?[clean(x)]:[]);};
+  const p={title:clean(raw.title),introPoints:list(raw.intro_points),introMedia:raw.intro_media,
+    sections:(Array.isArray(raw.sections)?raw.sections:[]).map(function(s){return {heading:clean(s&&s.heading),points:list(s&&s.points),media:s&&s.media};}).filter(function(s){return s.heading;}),
+    closing:clean(raw.closing),hashtags:list(raw.hashtags),captions:Array.isArray(raw.captions)?raw.captions.map(clean):[]};
+  if(!p.sections.length)throw new ParseError('missing');
+  if(!p.title)p.title=S.product.trim()+(S.keywords[0]&&S.product.indexOf(S.keywords[0])<0?' '+S.keywords[0]:'')+' 안내';
+  assignMedia(p,N);
+  p.captions=Array.from({length:N},function(_,i){return (p.captions[i]||'').slice(0,60);});
+  return p;
+}
+/* 부분별 분량·키워드 배분 */
+function partJobs(plan,T){
+  const B=Math.round((T.body[0]+T.body[1])/2),Sn=plan.sections.length;
+  const intro=clamp(Math.round(B*.13),160,420),rest=B-intro,W=[1.12,.88,1.04,1.18,.84,.96,1.08,.9];
+  const wsum=plan.sections.reduce(function(a,_,i){return a+W[i%W.length];},0);
+  const K=Math.max(2,Math.round((T.kw[0]+T.kw[1])/2)-1);
+  const jobs=[{k:'intro',label:'도입',chars:intro,paras:2,kw:0}].concat(plan.sections.map(function(s,i){
+    const c=Math.round(rest*W[i%W.length]/wsum);return {k:'s'+i,i:i,label:'섹션'+(i+1),chars:c,paras:clamp(Math.round(c/170),2,5),kw:0};
+  }));
+  for(let n=0;n<K;n++)jobs[n%jobs.length].kw++;
+  return jobs;
+}
+function capsOf(plan,list){return list.map(function(i){return '사진 '+i+': '+(plan.captions[i-1]||'(설명 없음)')+(S.media[i-1]&&S.media[i-1].kind==='video'?' (영상)':'');}).join('\n');}
+function buildPartContent(plan,job,brief){
+  const L=[brief];
+  const O=['[전체 구성]','제목: '+plan.title,'도입: '+plan.introPoints.join(' / ')];
+  plan.sections.forEach(function(s,i){O.push('섹션 '+(i+1)+' 「'+s.heading+'」: '+s.points.join(' / '));});
+  O.push('마무리: '+plan.closing);
+  L.push(O.join('\n'));
+  const kw=S.keywords[0];
+  const W=['[이번에 쓸 부분]'];
+  if(job.k==='intro'){
+    W.push('도입부 — 다룰 내용: '+(plan.introPoints.join(' / ')||'독자의 상황과 이 글에서 얻을 것'));
+    W.push('첫 문장은 독자의 구체적인 상황이나 질문으로 시작합니다. 글 전체를 미리 요약하거나 목차처럼 나열하지 않습니다.');
+    if(plan.introMedia.length)W.push('이 부분의 사진:\n'+capsOf(plan,plan.introMedia));
+  }else{
+    const s=plan.sections[job.i];
+    W.push('섹션 '+(job.i+1)+' 「'+s.heading+'」 — 다룰 내용: '+(s.points.join(' / ')||s.heading));
+    W.push('소제목은 프로그램이 붙이므로 쓰지 말고 바로 본문으로 시작합니다.'+(job.i===plan.sections.length-1?' 마지막 섹션이지만 홍보·문의 유도는 하지 않습니다(마무리 문장은 따로 있음).':''));
+    if(s.media.length)W.push('이 부분의 사진:\n'+capsOf(plan,s.media));
+  }
+  W.push('분량: 공백 포함 약 '+job.chars+'자, 문단 '+job.paras+'개 안팎.');
+  W.push(job.kw?'대표 키워드 "'+kw+'"를 '+job.kw+'회 자연스럽게 넣습니다.':'대표 키워드 "'+kw+'"는 억지로 넣지 않습니다.');
+  L.push(W.join('\n'));
+  return L.join('\n\n');
+}
+function partParas(text,heading){
+  let ps=String(text||'').replace(/\r/g,'').split(/\n\s*\n/).map(function(x){return clean(x.replace(/\n+/g,' ').replace(/^#+\s*/,'').replace(/^[-*•]\s+/,'').replace(/^["“](.*)["”]$/,'$1'));}).filter(Boolean);
+  ps=ps.filter(function(x){return !(heading&&normWs(x)===normWs(heading))&&!/^(도입부?|섹션\s*\d+|소제목|본문)\s*[:：-]/.test(x)&&!/^「.*」$/.test(x);});
+  const out=[];
+  ps.forEach(function(p){
+    if(p.length<=480){out.push(p);return;}
+    const ss=(p.match(/[^.!?。]+[.!?。]+["'”’)]*|[^.!?。]+$/g)||[p]).map(function(x){return x.trim();}).filter(Boolean);let cur='';
+    ss.forEach(function(x){if(cur&&cur.length+x.length>260){out.push(cur);cur=x;}else cur=cur?cur+' '+x:x;});
+    if(cur)out.push(cur);
+  });
+  return out;
+}
+
 function normalizePost(raw,N,kws){
   if(raw&&typeof raw==='object'&&!raw.title&&!raw.sections){const inner=raw.post||raw.input||raw.result;if(inner&&typeof inner==='object')raw=inner;}
   if(!raw||typeof raw!=='object')throw new ParseError('shape');
@@ -789,54 +923,152 @@ function paperHtml(p,date){
   h+='<p class="p-tags">'+esc(p.hashtags.join(' '))+'</p>';
   return h;
 }
+
+/* ================= 진행 표시 (에너지 충전) ================= */
+const E={t0:0,timer:0,stage:0,plan:0,cells:[],pct:0,live:'',liveLab:'',mode:''};
+const STAGES=['사진 보고 구성 짜기','문단 동시 작성','점검·완성'];
 function setEnergy(pct,txt,sub){
-  $('#energy').hidden=false;$('#eBar').style.width=clamp(pct,0,100)+'%';$('#eTxt').textContent=txt;$('#eSub').textContent=sub||'';
+  const el=$('#energy');el.hidden=false;el.classList.toggle('done',pct>=100);
+  E.pct=clamp(pct,0,100);$('#eBar').style.width=E.pct+'%';$('#eTxt').textContent=txt;$('#eSub').textContent=sub||'';
+}
+function energyStart(mode){
+  Object.assign(E,{t0:Date.now(),stage:0,plan:0,cells:[],pct:0,live:'',liveLab:'',mode:mode});
+  $('#live').innerHTML='';
+  clearInterval(E.timer);E.timer=setInterval(energyRender,250);
+  energyRender();
+}
+function energyStop(){clearInterval(E.timer);E.timer=0;}
+function energyRender(){
+  if(!E.t0)return;
+  const sec=Math.floor((Date.now()-E.t0)/1000);
+  let pct;
+  if(E.mode==='single'){pct=E.pct;}
+  else{
+    const cellAvg=E.cells.length?E.cells.reduce(function(a,c){return a+Math.min(1,c.p);},0)/E.cells.length:0;
+    pct=Math.round(3+Math.min(1,E.plan)*22+cellAvg*70+(E.stage>=2?5:0));
+  }
+  pct=Math.max(E.pct,Math.min(E.stage>=3?100:99,pct));
+  const txt=pct>=100?'⚡ 100% 충전 완료!':'⚡ '+pct+'% 충전 중';
+  setEnergy(pct,txt,sec+'초 경과'+(E.mode==='single'?'':' · '+(STAGES[Math.min(E.stage,2)]||'')));
+  $('#eSteps').innerHTML=E.mode==='single'?'<span class="run">한 번에 작성 중 (대체 방식)</span>':STAGES.map(function(s,i){return '<span class="'+(i<E.stage?'done':(i===E.stage?'run':''))+'">'+(i<E.stage?'✓ ':(i+1)+'. ')+s+'</span>';}).join('');
+  const cells=[{label:'구성',p:E.plan,st:E.stage>0?'done':'run'}].concat(E.cells.map(function(c){return {label:c.label,p:c.p,st:c.st};}));
+  $('#eCells').innerHTML=E.mode==='single'?'':cells.map(function(c){
+    const h=c.st==='done'?100:Math.round(Math.min(1,c.p)*100);
+    return '<div class="cell '+(c.st||'')+'" title="'+esc(c.label)+'"><em>'+(c.st==='done'?'✓':(c.st==='run'?'⚡':''))+'</em><i style="height:'+h+'%"></i><span>'+esc(c.label)+'</span></div>';
+  }).join('');
+}
+function setLive(lab,text){
+  const ss=(String(text||'').replace(/\s+/g,' ').match(/[^.!?。]+[.!?。]+|[^.!?。]+$/g)||[]).map(function(x){return x.trim();}).filter(Boolean).slice(-2);
+  $('#live').innerHTML=ss.length?'<p><small>'+esc(lab)+' ✍</small>'+esc(ss.join(' ')).slice(-220)+'</p>':'';
 }
 let liveT=0;
-function onStream(text,T,N,t0){
-  const now=Date.now();if(now-liveT<150)return;liveT=now;
-  const strs=(String(text).match(/"(?:[^"\\]|\\.){8,}"/g)||[]).map(function(s){try{return JSON.parse(s);}catch(e){return s.slice(1,-1);}}).filter(function(s){return !/^(intro_media|paragraphs|hashtags|captions|sections|closing|heading)$/.test(s);});
-  const chars=strs.reduce(function(a,s){return a+s.length;},0);
-  const goal=(T.body[0]+T.body[1])/2*1.12+N*18+60;
-  const pct=Math.min(97,8+Math.round(chars/goal*89));
-  setEnergy(pct,pct+'% 제작 중 ⚡',Math.round((now-t0)/1000)+'초 · '+chars.toLocaleString('ko-KR')+'자');
-  $('#live').innerHTML=strs.slice(-3).map(function(s){return '<p>'+esc(s)+'</p>';}).join('');
+function jsonStrings(text){
+  return (String(text).match(/"(?:[^"\\]|\\.){8,}"/g)||[]).map(function(s){try{return JSON.parse(s);}catch(e){return s.slice(1,-1);}});
 }
+
+/* ================= 제작 ================= */
 function ready(){return checks().every(function(c){return c.ok;});}
+function sleepMs(ms){return new Promise(function(r){setTimeout(r,ms);});}
+async function runPlan(T,N,usage,signal){
+  const content=buildPlanContent(T);
+  const goal=T.S*110+N*30+160;
+  const r=await callApi({system:SYS_PLAN,messages:[{role:'user',content:content}],tools:[PLAN_TOOL],tool_choice:{type:'tool',name:'plan_post'},max_tokens:3000+N*60,signal:signal,
+    onText:function(t){const ss=jsonStrings(t);E.plan=Math.min(.97,ss.reduce(function(a,s){return a+s.length;},0)/goal);const now=Date.now();if(now-liveT>200){liveT=now;setLive('구성',ss.slice(-1).join(''));}}});
+  usage.inp+=r.usage.input_tokens||0;usage.out+=r.usage.output_tokens||0;usage.calls++;
+  S.lastRaw=JSON.stringify({step:'plan',stop:r.stop,tool:typeof r.tool==='string'?r.tool.slice(0,3000):r.tool,text:str(r.text).slice(0,2000)});
+  if(r.stop==='refusal')throw new ParseError('refusal');
+  const src=r.tool!=null&&r.tool!==''?r.tool:r.text;
+  try{return normalizePlan(extractJson(src),N);}
+  catch(e){if(r.stop==='max_tokens')throw new ParseError('truncated');throw e;}
+}
+async function runPart(plan,job,cell,brief,usage,signal){
+  const heading=job.k==='intro'?'':plan.sections[job.i].heading;
+  const content=buildPartContent(plan,job,brief);
+  for(let a=0;a<2;a++){
+    cell.st='run';cell.p=0;
+    try{
+      const r=await callApi({system:SYS_PART,messages:[{role:'user',content:content}],max_tokens:Math.round(job.chars*2.2)+500,signal:signal,timeout:150000,
+        onText:function(t){cell.p=Math.min(.97,t.length/job.chars);const now=Date.now();if(now-liveT>200){liveT=now;setLive(job.k==='intro'?'도입':job.label,t);}}});
+      usage.inp+=r.usage.input_tokens||0;usage.out+=r.usage.output_tokens||0;usage.calls++;
+      if(r.stop==='refusal')throw new ParseError('refusal');
+      let ps=partParas(r.text,heading);
+      if(r.stop==='max_tokens'&&ps.length>1&&!/[.!?。]$/.test(ps[ps.length-1]))ps.pop();
+      if(!ps.length)throw new ParseError('missing');
+      cell.st='done';cell.p=1;
+      return ps;
+    }catch(e){
+      if(signal&&signal.aborted)throw e;
+      const retry=a===0&&((e instanceof ParseError&&e.message!=='refusal')||(e&&e.name==='ApiError'&&(e.status===429||e.status>=500)));
+      if(!retry)throw e;
+      await sleepMs(e&&e.name==='ApiError'?1500:0);
+    }
+  }
+}
+async function makeFast(T,N,usage){
+  const ctl=new AbortController();
+  energyStart('fast');
+  let plan;
+  try{plan=await runPlan(T,N,usage,ctl.signal);}
+  catch(e){if(e instanceof ParseError&&e.message!=='refusal')return null;throw e;}
+  E.plan=1;E.stage=1;
+  const jobs=partJobs(plan,T),brief=briefText();
+  E.cells=jobs.map(function(j){return {label:j.label,p:0,st:''};});
+  let res;
+  try{
+    const running=jobs.map(function(j,i){return runPart(plan,j,E.cells[i],brief,usage,ctl.signal);});
+    energyRender();
+    res=await Promise.all(running);
+  }catch(e){ctl.abort();throw e;}
+  E.stage=2;energyRender();
+  return normalizePost({title:plan.title,intro:res[0],intro_media:plan.introMedia,
+    sections:plan.sections.map(function(s,i){return {heading:s.heading,paragraphs:res[i+1],media:s.media};}),
+    closing:plan.closing,hashtags:plan.hashtags,captions:plan.captions},N,S.keywords);
+}
+async function makeSingle(T,N,usage){
+  energyStart('single');
+  const t0=Date.now(),content=buildContent(T),maxTok=T.body[1]>2600||N>12?14000:10000;
+  let post=null,last=null;
+  for(let a=0;a<2&&!post;a++){
+    const r=await callApi({system:SYS_WRITE,messages:[{role:'user',content:content}],tools:[POST_TOOL],tool_choice:{type:'tool',name:'write_post'},max_tokens:maxTok,
+      onText:function(t){
+        const now=Date.now();if(now-liveT<150)return;liveT=now;
+        const ss=jsonStrings(t).filter(function(s){return !/^(intro_media|paragraphs|hashtags|captions|sections|closing|heading)$/.test(s);});
+        const chars=ss.reduce(function(a,s){return a+s.length;},0),goal=(T.body[0]+T.body[1])/2*1.12+N*18+60;
+        E.pct=Math.min(97,5+Math.round(chars/goal*92));energyRender();setLive('작성',ss.slice(-3).join(' '));
+      }});
+    usage.inp+=r.usage.input_tokens||0;usage.out+=r.usage.output_tokens||0;usage.calls++;
+    S.lastRaw=JSON.stringify({step:'single',stop:r.stop,tool:typeof r.tool==='string'?r.tool.slice(0,3000):r.tool,text:str(r.text).slice(0,3000)});
+    try{
+      if(r.stop==='refusal')throw new ParseError('refusal');
+      const src=r.tool!=null&&r.tool!==''?r.tool:r.text;
+      try{post=normalizePost(extractJson(src),N,S.keywords);}
+      catch(e){if(r.stop==='max_tokens')throw new ParseError('truncated');throw e;}
+    }catch(e){
+      if(!(e instanceof ParseError))throw e;last=e;
+      if(e.message==='refusal')break;
+      if(a===0){E.pct=5;energyRender();}
+    }
+  }
+  if(!post)throw last||new ParseError('fail');
+  return post;
+}
 async function make(){
   if(S.busy||!ready())return;
   S.busy=true;S.fail='';renderBanner();update();
   const T=targets(),N=S.media.length,t0=Date.now(),usage={inp:0,out:0,calls:0};
-  setEnergy(3,'준비 중...','미디어 '+N+'개 전송');$('#live').innerHTML='';
-  const content=buildContent(T);
-  const maxTok=T.body[1]>2600||N>12?14000:10000;
   S.lastRaw='';
   try{
-    let post=null,last=null;
-    for(let a=0;a<2&&!post;a++){
-      const r=await callApi({system:SYS_WRITE,messages:[{role:'user',content:content}],tools:[POST_TOOL],tool_choice:{type:'tool',name:'write_post'},max_tokens:maxTok,onText:function(t){onStream(t,T,N,t0);}});
-      usage.inp+=r.usage.input_tokens||0;usage.out+=r.usage.output_tokens||0;usage.calls++;
-      S.lastRaw=JSON.stringify({stop:r.stop,tool:typeof r.tool==='string'?r.tool.slice(0,3000):r.tool,text:str(r.text).slice(0,3000)});
-      try{
-        if(r.stop==='refusal')throw new ParseError('refusal');
-        const src=r.tool!=null&&r.tool!==''?r.tool:r.text;
-        try{post=normalizePost(extractJson(src),N,S.keywords);}
-        catch(e){if(r.stop==='max_tokens')throw new ParseError('truncated');throw e;}
-      }catch(e){
-        if(!(e instanceof ParseError))throw e;last=e;
-        if(e.message==='refusal')break;
-        if(a===0)setEnergy(10,'다시 시도 중 ⚡',e.message==='truncated'?'응답이 끊김':'응답 형식 오류');
-      }
-    }
-    if(!post)throw last||new ParseError('fail');
+    let post=S.settings.fast===false?null:await makeFast(T,N,usage);
+    if(!post)post=await makeSingle(T,N,usage);
     const sec=Math.max(1,Math.round((Date.now()-t0)/1000));
     const date=today();
-    S.result={html:paperHtml(post,date),title:post.title,tags:post.hashtags.join(' '),date:date,kw:S.keywords[0],ad:S.ad,refText:S.ref?S.ref.text:'',T:T,cost:costOf(usage,S.settings.model),sec:sec,model:S.settings.model};
+    S.result={html:paperHtml(post,date),title:post.title,tags:post.hashtags.join(' '),date:date,kw:S.keywords[0],ad:S.ad,refText:S.ref&&S.ref.plain||'',T:T,cost:costOf(usage,S.settings.model),sec:sec,model:S.settings.model,calls:usage.calls};
     addCost(usage,S.settings.model);
-    setEnergy(100,'100% 완료!',sec+'초');$('#live').innerHTML='';
+    E.stage=3;energyRender();energyStop();setEnergy(100,'⚡ 100% 충전 완료!',sec+'초 만에 완성');$('#live').innerHTML='';
     renderResult(true);saveResult();
     setTimeout(function(){$('#sec5').scrollIntoView({behavior:'smooth',block:'start'});},50);
   }catch(e){
+    energyStop();
     S.fail='제작하지 못했습니다. '+errText(e);S.failRaw=e&&e.name==='ParseError'?S.lastRaw:'';$('#energy').hidden=true;renderBanner();
   }finally{S.busy=false;update();}
 }
@@ -1002,15 +1234,12 @@ function addCost(u,model){
 function checks(){
   const basic=S.product.trim().length>=2&&S.keywords.length>=1;
   const directOk=S.direct.trim().length>=20;
-  let src={ok:false,st:'',note:''};
-  if(S.refState==='load'){src={ok:false,st:'wait',note:'참고 글 분석 중'};}
-  else if(S.refState==='ok'||directOk){src={ok:true,note:[S.refState==='ok'?'참고 글':'',directOk?'직접 입력':''].filter(Boolean).join(' + ')};}
-  else src={ok:false,note:S.url.trim()?'URL 분석 실패 — 직접 입력을 20자 이상 적어 주세요':'URL 또는 직접 입력 20자 이상'};
+  const src=(directOk||S.ref)?{ok:true,note:[directOk?'직접 입력':'',S.ref?'참고 글 구조':''].filter(Boolean).join(' + ')}:{ok:false,note:'직접 입력 20자 이상 또는 참고 글 붙여넣기'};
   const n=S.media.length,media={ok:n>=1&&n<=MAX_MEDIA&&!S.mediaBusy,st:S.mediaBusy?'wait':'',note:S.mediaBusy?'불러오는 중':(n+'개')};
   const key=S.apiKey.trim().length>=20;
   return [
     {id:'basic',label:'기본 정보 입력 완료',ok:basic,note:basic?'':'상품명과 키워드 1개 이상'},
-    {id:'src',label:'소스 입력 완료',ok:src.ok,st:src.st,note:src.note},
+    {id:'src',label:'재료 입력 완료',ok:src.ok,st:src.st,note:src.note},
     {id:'media',label:'미디어 첨부 완료 (1~20개)',ok:media.ok,st:media.st,note:media.note},
     {id:'key',label:'API 연결',ok:key,note:key?'':'오른쪽 위 API 버튼'}
   ];
@@ -1028,23 +1257,22 @@ function update(){
 }
 function renderBanner(){$('#banner').innerHTML=S.fail?'<div class="banner">'+esc(S.fail)+(S.failRaw?' <button class="btn" type="button" id="rawCopy" style="padding:2px 10px;margin-left:6px">오류 내용 복사</button>':'')+'</div>':'';}
 let draftT=0;
-function saveDraft(){clearTimeout(draftT);draftT=setTimeout(function(){store.set('blogSimple.draft',{product:S.product,keywords:S.keywords,type:S.type,url:S.url,direct:S.direct,ad:S.ad,guide:S.guide});},300);}
+function saveDraft(){clearTimeout(draftT);draftT=setTimeout(function(){store.set('blogSimple.draft',{product:S.product,keywords:S.keywords,type:S.type,direct:S.direct,ad:S.ad,guide:S.guide});},300);}
 function syncInputs(){
-  $('#product').value=S.product;$('#type').value=S.type;$('#url').value=S.url;$('#direct').value=S.direct;$('#guide').value=S.guide;$('#kwInput').value='';
+  $('#product').value=S.product;$('#type').value=S.type;$('#direct').value=S.direct;$('#guide').value=S.guide;$('#kwInput').value='';
   $$('.seg button').forEach(function(b){b.setAttribute('aria-checked',String(b.getAttribute('data-ad')===S.ad));});
   $('#adHint').textContent=S.ad==='ad'?'본문 맨 앞에 광고 표기가 들어갑니다':'대가를 받았거나 회사 홍보 글이면 광고성을 고르세요';
 }
 
 /* ================= 초기화 (Blog 로고 · 처음으로) ================= */
-function hasWork(){return !!(S.product.trim()||S.keywords.length||S.url.trim()||S.direct.trim()||S.guide.trim()||S.media.length||S.result);}
+function hasWork(){return !!(S.product.trim()||S.keywords.length||S.ref||S.direct.trim()||S.guide.trim()||S.media.length||S.result);}
 function resetAll(force){
   if(S.busy||S.mediaBusy){toast('작업이 끝난 뒤에 처음으로 돌아갈 수 있습니다.');return false;}
   if(hasWork()&&!force&&!confirm('처음으로 돌아갈까요?\n입력한 내용, 미디어, 결과가 모두 지워집니다. (API 키는 유지)'))return false;
-  clearTimeout(refT);refSeq++;
-  Object.assign(S,{product:'',keywords:[],type:'info',url:'',direct:'',ad:'ad',guide:'',media:[],ref:null,refState:'idle',refMsg:'',refFor:'',result:null,fail:''});
+  Object.assign(S,{product:'',keywords:[],type:'info',direct:'',ad:'ad',guide:'',media:[],ref:null,tplId:'',result:null,fail:''});
   store.del('blogSimple.draft');idb.set('media',[]);idb.set('result',null);idb.set('ref',null);
-  syncInputs();renderChips();renderMedia();renderRef();renderBanner();renderResult();
-  $('#energy').hidden=true;$('#live').innerHTML='';
+  syncInputs();renderChips();renderMedia();renderRef();renderTpls();renderBanner();renderResult();
+  energyStop();$('#energy').hidden=true;$('#live').innerHTML='';
   window.scrollTo({top:0});
   update();
   return true;
@@ -1053,7 +1281,7 @@ function resetAll(force){
 /* ================= 설정 ================= */
 function loadSettings(){
   const s=store.get('blogSimple.settings',null);
-  if(s){if(MODELS[s.model])S.settings.model=s.model;S.settings.saveKey=s.saveKey!==false;}
+  if(s){if(MODELS[s.model])S.settings.model=s.model;S.settings.saveKey=s.saveKey!==false;S.settings.fast=s.fast!==false;}
   try{S.apiKey=localStorage.getItem(KEY_STORE)||sessionStorage.getItem(KEY_STORE)||'';}catch(e){S.apiKey='';}
 }
 function persistSettings(){
@@ -1062,14 +1290,13 @@ function persistSettings(){
 }
 function openSet(){
   $('#setKey').value=S.apiKey;$('#setKey').type='password';$('#setShow').textContent='보기';
-  $('#setSave').checked=S.settings.saveKey;$('#setModel').value=S.settings.model;
+  $('#setSave').checked=S.settings.saveKey;$('#setFast').checked=S.settings.fast!==false;$('#setModel').value=S.settings.model;
   $('#setStat').textContent='';$('#setStat').className='stat';$('#setModal').hidden=false;$('#setKey').focus();
 }
 function applySet(){
   const before=S.apiKey;
-  S.apiKey=$('#setKey').value.trim();S.settings.saveKey=$('#setSave').checked;S.settings.model=$('#setModel').value;
+  S.apiKey=$('#setKey').value.trim();S.settings.saveKey=$('#setSave').checked;S.settings.model=$('#setModel').value;S.settings.fast=$('#setFast').checked;
   persistSettings();update();
-  if(!before&&S.apiKey&&S.refState==='needkey')scheduleRef();
 }
 async function testKey(){
   applySet();const st=$('#setStat');
@@ -1095,8 +1322,26 @@ function bind(){
   kw.addEventListener('blur',function(){if(kw.value.trim()){addKeywords(kw.value);kw.value='';}});
   $('#chips').addEventListener('click',function(e){const b=e.target.closest('button[data-kw]');if(b){S.keywords.splice(+b.getAttribute('data-kw'),1);renderChips();update();}});
   $('#type').addEventListener('change',function(e){S.type=e.target.value;update();});
-  $('#url').addEventListener('input',function(e){S.url=e.target.value;scheduleRef();});
-  $('#refStatus').addEventListener('click',function(e){if(e.target.id==='refRetry'){S.refFor='';S.ref=null;scheduleRef();}});
+  const pb=$('#pasteBox');
+  pb.addEventListener('paste',function(e){
+    e.preventDefault();
+    const cd=e.clipboardData||window.clipboardData;
+    const html=cd?cd.getData('text/html'):'',text=cd?cd.getData('text/plain'):'';
+    if(!normWs(text)&&!html){toast('글 내용을 복사해 붙여 넣어 주세요. (사진만 복사하면 구조를 알 수 없습니다)');return;}
+    applyPaste(html,text);
+  });
+  pb.addEventListener('input',function(){if(normWs(pb.textContent).length>=150&&!S.ref){applyPaste(pb.innerHTML,pb.innerText||pb.textContent);}});
+  pb.addEventListener('drop',function(e){e.preventDefault();});
+  $('#refStatus').addEventListener('click',function(e){
+    if(e.target.id==='refClear')clearRef();
+    else if(e.target.id==='refSave'){const n=prompt('이 구조의 이름을 정해 주세요. (예: 커튼 설치 후기형)',(S.ref&&S.ref.title||S.product||'').slice(0,30));if(n!=null&&!saveTpl(n))toast('이름을 입력해 주세요.');}
+  });
+  $('#tplSel').addEventListener('change',function(e){if(e.target.value)useTpl(e.target.value);else{clearRef();renderTpls();}});
+  $('#tplDel').addEventListener('click',function(){if($('#tplSel').value)delTpl($('#tplSel').value);});
+  $('#formBtn').addEventListener('click',function(){
+    const ta=$('#direct'),F='상품 조건: \n고객이 자주 묻는 질문: \n실제 사례: \n(선택) 지표: 본문 2,000자 · 소제목 5';
+    ta.value=ta.value.trim()?ta.value.replace(/\s*$/,'')+'\n\n'+F:F;S.direct=ta.value;update();ta.focus();ta.setSelectionRange(6,6);
+  });
   $('#direct').addEventListener('input',function(e){S.direct=e.target.value;update();});
   $('#guide').addEventListener('input',function(e){S.guide=e.target.value;update();});
   $$('.seg button').forEach(function(b){b.addEventListener('click',function(){S.ad=b.getAttribute('data-ad');syncInputs();update();});});
@@ -1137,21 +1382,20 @@ async function init(){
     S.product=str(d.product).slice(0,40);
     S.keywords=Array.isArray(d.keywords)?d.keywords.filter(function(k){return typeof k==='string'&&k;}).slice(0,10):[];
     S.type=TYPES.some(function(t){return t.k===d.type;})?d.type:'info';
-    S.url=str(d.url);S.direct=str(d.direct);S.ad=d.ad==='info'?'info':'ad';S.guide=str(d.guide);
+    S.direct=str(d.direct);S.ad=d.ad==='info'?'info':'ad';S.guide=str(d.guide);
   }
-  bind();syncInputs();renderChips();renderMedia();update();
+  bind();syncInputs();renderChips();renderMedia();renderTpls();update();
   try{
     const m=await idb.get('media');
     if(Array.isArray(m)&&!S.media.length){S.media=m.filter(function(x){return x&&typeof x.thumb==='string';}).slice(0,MAX_MEDIA);renderMedia();}
     const ref=await idb.get('ref');
-    if(ref&&ref.m&&S.url.trim()&&ref.url===S.url.trim()){S.ref=ref;S.refFor=ref.url;S.refState='ok';renderRef();}
-    else if(S.url.trim())scheduleRef();
+    if(ref&&ref.m&&typeof ref.skel==='string'&&!S.ref){S.ref=ref;S.tplId=ref.source==='tpl'?(tpls().filter(function(t){return t.name===ref.name;})[0]||{}).id||'':'';renderRef();renderTpls();}
     const r=await idb.get('result');
     if(r&&r.html&&!S.result){S.result=r;renderResult(true);}
   }catch(e){}
   update();
 }
-window.BlogApp={S:S,extractJson:extractJson,POST_TOOL:POST_TOOL,addKeywords:addKeywords,parseStats:parseStats,targets:targets,buildContent:buildContent,normalizePost:normalizePost,assignMedia:assignMedia,paperHtml:paperHtml,make:make,checks:checks,inspect:inspect,resetAll:resetAll,copyParts:copyParts,fetchUrlOf:fetchUrlOf,analyzeUrl:analyzeUrl,scheduleRef:scheduleRef,sliceBody:sliceBody,overlap:overlap,readStream:readStream,renderMedia:renderMedia,update:update,errText:errText,SYS_WRITE:SYS_WRITE,goMark:goMark,saveResult:saveResult};
+window.BlogApp={S:S,E:E,parseRefHtml:parseRefHtml,parseRefText:parseRefText,applyPaste:applyPaste,clearRef:clearRef,saveTpl:saveTpl,useTpl:useTpl,delTpl:delTpl,tpls:tpls,extractJson:extractJson,POST_TOOL:POST_TOOL,PLAN_TOOL:PLAN_TOOL,addKeywords:addKeywords,parseStats:parseStats,targets:targets,buildContent:buildContent,buildPlanContent:buildPlanContent,buildPartContent:buildPartContent,partJobs:partJobs,partParas:partParas,normalizePlan:normalizePlan,normalizePost:normalizePost,assignMedia:assignMedia,paperHtml:paperHtml,make:make,checks:checks,inspect:inspect,resetAll:resetAll,copyParts:copyParts,overlap:overlap,readStream:readStream,renderMedia:renderMedia,update:update,errText:errText,SYS_WRITE:SYS_WRITE,SYS_PLAN:SYS_PLAN,SYS_PART:SYS_PART,goMark:goMark,saveResult:saveResult};
 init();
 })();
 </script>
