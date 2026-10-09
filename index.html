@@ -176,7 +176,7 @@ mark.ban{background:#ffd5d9;color:#a3111f;border-radius:3px;padding:0 2px}
 </head>
 <body>
 <header class="gnb">
-  <button class="logo" id="logo" type="button" title="처음으로 (모든 입력 초기화)">Blog <small>블로그 자동 작성</small></button>
+  <button class="logo" id="logo" type="button" title="처음으로 (모든 입력 초기화)">Blog <small>블로그 자동 작성 · v1.6</small></button>
   <button class="api-pill" id="apiBtn" type="button"><i></i><span id="apiTxt">API 미연결</span></button>
 </header>
 
@@ -555,6 +555,7 @@ function errText(e){
     if(s===413)return '입력이 너무 큽니다. 미디어 수나 직접 입력 내용을 줄여 주세요.';
     if(s===429)return '요청이 많아 잠시 제한되었습니다. 잠시 후 다시 시도하세요.';
     if(s>=500)return 'Anthropic 서버가 혼잡합니다. 잠시 후 다시 시도하세요.';
+    if(/tool_choice/i.test(msg))return '이 모델이 도구 강제 방식을 지원하지 않습니다. 화면이 예전 버전일 수 있으니 Ctrl+Shift+R(맥: ⌘+Shift+R)로 새로고침한 뒤 다시 시도하세요. 왼쪽 위에 v1.6이 보이면 최신입니다.';
     return '요청이 거절되었습니다'+m+(s?' [코드 '+s+']':'');
   }
   if(e&&e.name==='AbortError')return '응답 시간이 초과되었습니다. 다시 시도해 주세요.';
